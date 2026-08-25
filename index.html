@@ -181,13 +181,32 @@
   }
 
   async function toggle(id, val) {
-    attMap[id] = val;
+  const dejanje = val ? "označiti kot OPRAVLJENO" : "ODSTRANITI oznako prisotnosti";
+  
+  // 1. VAROVALKA: Vprašalnik pred spremembo
+  const potrdi = confirm(`Ali ste prepričani, da želite ${dejanje}?`);
+  
+  // Če kliknete "Prekliči", se koda ustavi in povrne prejšnji videz
+  if (!potrdi) {
     render();
+    return;
+  }
+
+  // 2. Če kliknete "V redu", se posodobi lokalno in pošlje v Supabase
+  attMap[id] = val;
+  render();
+  
+  try {
     await supabaseClient.from('sd1_attendance').upsert({
       item_id: id,
       is_completed: val,
       updated_at: new Date().toISOString()
     }, { onConflict: 'item_id' });
+  } catch (err) {
+    console.error("Napaka pri shranjevanju:", err);
+    alert("Napaka pri povezavi s Supabase bazo!");
+  }
+}
   }
 
   function render() {
