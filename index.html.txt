@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SD1 Košarka 2026 - Prisotnost</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a; --primary-dark: #172554; --orange: #d97706; --orange-bg: #fffbeb;
+      --blue: #2563eb; --blue-bg: #eff6ff; --green: #16a34a; --green-bg: #f0fdf4;
+      --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-600: #4b5563; --gray-800: #1f2937;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #f1f5f9; color: var(--gray-800); padding: 16px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 22px 20px; border-radius: 12px; margin-bottom: 20px; }
+    header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    header p { color: #93c5fd; font-size: 0.9rem; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .card { background: white; padding: 16px; border-radius: 10px; border: 1px solid var(--gray-200); }
+    .card.obv { border-top: 4px solid var(--orange); }
+    .card.pos { border-top: 4px solid var(--blue); }
+    .card.tot { border-top: 4px solid var(--primary); }
+    .card-title { font-size: 0.8rem; font-weight: 700; color: var(--gray-600); text-transform: uppercase; margin-bottom: 6px; }
+    .card-val { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+    .card-sub { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 8px; }
+    .prog-bg { background: var(--gray-200); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+    .prog-fill { height: 100%; transition: width 0.3s ease; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .badge-ok { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; }
+    .badge-pending { background: var(--orange-bg); color: var(--orange); border: 1px solid #fde68a; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .btn-f { background: white; border: 1px solid var(--gray-200); padding: 7px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .btn-f.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .list { display: flex; flex-direction: column; gap: 8px; }
+    .row-item { background: white; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .row-item.completed { background: #f8fafc; border-left: 5px solid var(--green) !important; }
+    .row-item.item-obv { border-left: 5px solid var(--orange); }
+    .row-item.item-pos { border-left: 5px solid var(--blue); }
+    .row-item.item-izpit { border-left: 5px solid #dc2626; }
+    .item-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+    .cb { width: 20px; height: 20px; cursor: pointer; accent-color: var(--green); }
+    .tag { font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+    .tag-obv { background: var(--orange-bg); color: var(--orange); }
+    .tag-pos { background: var(--blue-bg); color: var(--blue); }
+    .tag-loc { background: var(--gray-100); color: var(--gray-600); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; }
+    .hours { font-size: 1.1rem; font-weight: 800; color: var(--primary); min-width: 50px; text-align: right; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>SD1 Košarka 2026 - Kontrolnik Prisotnosti</h1>
+    <p>Sinhronizirano s Supabase • 80 % prag prisotnosti</p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="card obv">
+      <div class="card-title">Obvezne vsebine</div>
+      <div class="card-val" id="kpi-obv">0.0 / 22.0 h (0%)</div>
+      <div class="card-sub">Cilj 80 %: 17.6 h</div>
+      <div class="prog-bg"><div class="prog-fill" id="prog-obv" style="width:0%; background:var(--orange);"></div></div>
+      <span class="badge badge-pending" id="badge-obv">Manjka še 17.6 h</span>
+    </div>
+    <div class="card pos">
+      <div class="card-title">Posebne vsebine</div>
+      <div class="card-val" id="kpi-pos">0.0 / 107.0 h (0%)</div>
+      <div class="card-sub">Cilj 80 %: 85.6 h</div>
+      <div class="prog-bg"><div class="prog-fill" id="prog-pos" style="width:0%; background:var(--blue);"></div></div>
+      <span class="badge badge-pending" id="badge-pos">Manjka še 85.6 h</span>
+    </div>
+    <div class="card tot">
+      <div class="card-title">Skupno usposabljanje</div>
+      <div class="card-val" id="kpi-tot">0.0 / 129.0 h (0%)</div>
+      <div class="card-sub">Pogoj za pristop k izpitu</div>
+      <div class="prog-bg"><div class="prog-fill" id="prog-tot" style="width:0%; background:var(--primary);"></div></div>
+      <span class="badge badge-pending" id="badge-tot">Pristop še ni možen</span>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="btn-f active" onclick="setF('all', this)">Vse</button>
+    <button class="btn-f" onclick="setF('OBV', this)">Obvezne</button>
+    <button class="btn-f" onclick="setF('POS', this)">Posebne</button>
+    <button class="btn-f" onclick="setF('daljava', this)">Na daljavo</button>
+    <button class="btn-f" onclick="setF('fizicno', this)">Fizično</button>
+  </div>
+
+  <div class="list" id="schedule-list">Nalaganje podatkov iz Supabase...</div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'VAŠ_SUPABASE_URL';
+  const SUPABASE_KEY = 'VAŠ_SUPABASE_ANON_KEY';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let schedule = [];
+  let attMap = {};
+  let currentFilter = 'all';
+
+  async function init() {
+    const { data: sch } = await supabaseClient.from('sd1_schedule').select('*').order('item_id');
+    const { data: att } = await supabaseClient.from('sd1_attendance').select('*');
+    if (sch) schedule = sch;
+    if (att) att.forEach(a => attMap[a.item_id] = a.is_completed);
+    render();
+  }
+
+  async function toggle(id, val) {
+    attMap[id] = val;
+    render();
+    await supabaseClient.from('sd1_attendance').upsert({
+      item_id: id,
+      is_completed: val,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'item_id' });
+  }
+
+  function render() {
+    let obvH = 0, posH = 0;
+    schedule.forEach(item => {
+      if (attMap[item.item_id]) {
+        if (item.type === 'OBV') obvH += parseFloat(item.ur);
+        if (item.type === 'POS') posH += parseFloat(item.ur);
+      }
+    });
+
+    const totH = obvH + posH;
+    const pObv = Math.min(100, (obvH / 22.0) * 100);
+    const pPos = Math.min(100, (posH / 107.0) * 100);
+    const pTot = Math.min(100, (totH / 129.0) * 100);
+
+    document.getElementById('kpi-obv').innerText = `${obvH.toFixed(1)} / 22.0 h (${pObv.toFixed(1)}%)`;
+    document.getElementById('prog-obv').style.width = pObv + '%';
+    document.getElementById('badge-obv').innerText = obvH >= 17.6 ? 'POGOJ 80% IZPOLNJEN' : `Manjka še ${(17.6 - obvH).toFixed(1)} h`;
+    document.getElementById('badge-obv').className = `badge ${obvH >= 17.6 ? 'badge-ok' : 'badge-pending'}`;
+
+    document.getElementById('kpi-pos').innerText = `${posH.toFixed(1)} / 107.0 h (${pPos.toFixed(1)}%)`;
+    document.getElementById('prog-pos').style.width = pPos + '%';
+    document.getElementById('badge-pos').innerText = posH >= 85.6 ? 'POGOJ 80% IZPOLNJEN' : `Manjka še ${(85.6 - posH).toFixed(1)} h`;
+    document.getElementById('badge-pos').className = `badge ${posH >= 85.6 ? 'badge-ok' : 'badge-pending'}`;
+
+    document.getElementById('kpi-tot').innerText = `${totH.toFixed(1)} / 129.0 h (${pTot.toFixed(1)}%)`;
+    document.getElementById('prog-tot').style.width = pTot + '%';
+    document.getElementById('badge-tot').innerText = (obvH >= 17.6 && posH >= 85.6) ? 'PRISTOP K IZPITU ODOBREN!' : 'Pogoji še niso izpolnjeni';
+    document.getElementById('badge-tot').className = `badge ${(obvH >= 17.6 && posH >= 85.6) ? 'badge-ok' : 'badge-pending'}`;
+
+    const listEl = document.getElementById('schedule-list');
+    listEl.innerHTML = '';
+    const filtered = schedule.filter(item => {
+      if (currentFilter === 'all') return true;
+      if (currentFilter === 'OBV') return item.type === 'OBV';
+      if (currentFilter === 'POS') return item.type === 'POS';
+      if (currentFilter === 'daljava') return item.prostor.includes('daljavo');
+      if (currentFilter === 'fizicno') return !item.prostor.includes('daljavo');
+      return true;
+    });
+
+    filtered.forEach(item => {
+      const isDone = !!attMap[item.item_id];
+      const div = document.createElement('div');
+      div.className = `row-item ${item.type === 'OBV' ? 'item-obv' : (item.type === 'POS' ? 'item-pos' : 'item-izpit')} ${isDone ? 'completed' : ''}`;
+      div.onclick = (e) => { if (e.target.tagName !== 'INPUT') toggle(item.item_id, !isDone); };
+      div.innerHTML = `
+        <div class="item-left">
+          <input type="checkbox" class="cb" ${isDone ? 'checked' : ''} onchange="toggle(${item.item_id}, this.checked)">
+          <div>
+            <div style="display:flex; gap:6px; align-items:center; margin-bottom:2px;">
+              <strong>${item.dan.toUpperCase()}, ${item.datum} (${item.ura})</strong>
+              <span class="tag ${item.type === 'OBV' ? 'tag-obv' : 'tag-pos'}">${item.type}</span>
+              <span class="tag-loc">${item.prostor}</span>
+            </div>
+            <div style="font-size:0.95rem;">${item.tema}</div>
+            <div style="font-size:0.8rem; color:var(--gray-600);">Predavatelj: ${item.pred}</div>
+          </div>
+        </div>
+        <div class="hours">${parseFloat(item.ur).toFixed(1)} h</div>
+      `;
+      listEl.appendChild(div);
+    });
+  }
+
+  function setF(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.btn-f').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  init();
+</script>
+</body>
+</html>
