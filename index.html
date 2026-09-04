@@ -3,465 +3,845 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SD1 Košarka 2026 - 2. Skupina (Nadzor prisotnosti)</title>
+  <title>SD1 Košarka 2026 – 2. skupina | Evidenca prisotnosti</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --primary: #1e3a8a;
-      --primary-dark: #172554;
-      --orange: #d97706;
-      --orange-bg: #fffbeb;
-      --orange-border: #fde68a;
-      --blue: #2563eb;
-      --blue-bg: #eff6ff;
-      --blue-border: #bfdbfe;
-      --green: #16a34a;
-      --green-bg: #f0fdf4;
-      --red: #dc2626;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-600: #4b5563;
-      --gray-800: #1f2937;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --navy:      #17255a;
+      --navy-2:    #24357e;
+      --ink:       #16203a;
+      --muted:     #64748b;
+      --line:      #e2e8f0;
+      --line-2:    #cbd5e1;
+      --page:      #eef2f7;
+      --surface:   #ffffff;
+
+      --obv:       #c2410c;
+      --obv-soft:  #fff5ed;
+      --obv-line:  #fdba74;
+
+      --pos:       #1d4ed8;
+      --pos-soft:  #eff6ff;
+      --pos-line:  #bfdbfe;
+
+      --exam:      #b91c1c;
+      --exam-soft: #fef2f2;
+      --exam-line: #fecaca;
+
+      --ok:        #15803d;
+      --ok-soft:   #f0fdf4;
+      --ok-line:   #bbf7d0;
+
+      --warn:      #a16207;
+      --warn-soft: #fefce8;
+      --warn-line: #fde68a;
+
+      --r-sm: 8px;
+      --r:    12px;
+      --r-lg: 16px;
+      --sh-1: 0 1px 2px rgb(15 23 42 / .06), 0 1px 3px rgb(15 23 42 / .06);
+      --sh-2: 0 4px 12px rgb(15 23 42 / .08);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #f1f5f9; color: var(--gray-800); padding: 16px; line-height: 1.4; }
-    .container { max-width: 1000px; margin: 0 auto; }
-    
-    header {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      color: white;
-      padding: 20px;
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      box-shadow: var(--shadow);
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--page);
+      color: var(--ink);
+      font: 400 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: 20px 16px 64px;
     }
-    header h1 { font-size: 1.4rem; margin-bottom: 4px; font-weight: 700; }
-    header p { color: #93c5fd; font-size: 0.88rem; }
+    .wrap { max-width: 1080px; margin: 0 auto; }
 
-    /* User Switcher */
-    .user-bar {
-      display: flex;
-      background: white;
-      padding: 6px;
-      border-radius: var(--radius);
-      gap: 8px;
-      margin-bottom: 16px;
-      border: 1px solid var(--gray-200);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      flex-wrap: wrap;
+    /* ---------- Header ---------- */
+    .hero {
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      color: #fff;
+      border-radius: var(--r-lg);
+      padding: 22px 24px;
+      box-shadow: var(--sh-2);
     }
-    .user-tab {
-      flex: 1;
-      min-width: 140px;
-      background: var(--gray-100);
-      border: 1px solid transparent;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.92rem;
-      color: var(--gray-600);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
+    .hero h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -.01em; }
+    .hero .sub { color: #b8c6f0; font-size: .9rem; margin-top: 4px; }
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
     }
-    .user-tab:hover { background: #e2e8f0; }
-    .user-tab.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    .chip-meta {
+      background: rgb(255 255 255 / .12);
+      border: 1px solid rgb(255 255 255 / .18);
+      padding: 4px 11px; border-radius: 999px;
+      font-size: .78rem; font-weight: 600; color: #e7edff;
     }
-    .user-avatar { font-size: 1.1rem; }
 
-    /* KPI Summary Cards */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 20px; }
-    .card { background: white; padding: 18px; border-radius: 10px; border: 1px solid var(--gray-200); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .card.obv { border-top: 5px solid var(--orange); }
-    .card.pos { border-top: 5px solid var(--blue); }
-    .card.tot { border-top: 5px solid var(--primary); }
-    
-    .card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-    .card-title { font-size: 0.8rem; font-weight: 700; color: var(--gray-600); text-transform: uppercase; }
-    .card-pct { font-size: 1.4rem; font-weight: 800; }
-    .pct-orange { color: var(--orange); }
-    .pct-blue { color: var(--blue); }
-    .pct-total { color: var(--primary); }
-
-    .card-val { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
-    .card-sub { font-size: 0.82rem; color: var(--gray-600); margin-bottom: 10px; }
-    
-    .prog-bg { background: var(--gray-200); height: 9px; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
-    .prog-fill { height: 100%; transition: width 0.3s ease; }
-    
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
-    .badge-ok { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; }
-    .badge-pending { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
-
-    /* Filters */
-    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; background: white; padding: 12px; border-radius: 10px; border: 1px solid var(--gray-200); }
-    .btn-f { background: var(--gray-100); border: 1px solid var(--gray-200); padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .btn-f.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-    /* List items */
-    .list { display: flex; flex-direction: column; gap: 8px; }
-    .row-item {
-      background: white;
-      padding: 14px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--gray-200);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.15s;
+    /* ---------- Candidate tabs ---------- */
+    .who {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r); padding: 6px; margin-top: 16px; box-shadow: var(--sh-1);
     }
-    .row-item:hover { border-color: #94a3b8; }
-    .row-item.completed { background: #f8fafc; border-left: 6px solid var(--green) !important; }
-    .row-item.item-obv { border-left: 6px solid var(--orange); }
-    .row-item.item-pos { border-left: 6px solid var(--blue); }
-    .row-item.item-izpit { border-left: 6px solid var(--red); }
+    .who-tab {
+      flex: 1 1 150px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: #f8fafc; border: 1px solid var(--line); border-radius: var(--r-sm);
+      padding: 10px 12px; cursor: pointer;
+      font: 700 .92rem system-ui, sans-serif; color: var(--muted);
+      transition: background .15s, color .15s;
+    }
+    .who-tab:hover { background: #eef2f7; color: var(--ink); border-color: var(--line-2); }
+    .who-tab[aria-selected="true"] { background: var(--navy); color: #fff; box-shadow: var(--sh-1); }
+    .who-dot {
+      width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+      background: #e2e8f0; color: var(--navy); font-size: .72rem; font-weight: 800;
+    }
+    .who-tab[aria-selected="true"] .who-dot { background: rgb(255 255 255 / .2); color: #fff; }
 
-    .item-left { display: flex; align-items: center; gap: 14px; flex: 1; }
-    .cb { width: 22px; height: 22px; cursor: pointer; accent-color: var(--green); }
-    
-    .tag { font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-    .tag-obv { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
-    .tag-pos { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
-    .tag-izpit { background: #fee2e2; color: var(--red); }
-    .tag-loc { background: var(--gray-100); color: var(--gray-600); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-    
-    .hours { font-size: 1.15rem; font-weight: 800; color: var(--primary); min-width: 55px; text-align: right; }
+    /* ---------- KPI ---------- */
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 12px; margin-top: 16px; }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 16px 18px; box-shadow: var(--sh-1); border-top: 4px solid var(--line-2);
+    }
+    .kpi.k-obv { border-top-color: var(--obv); }
+    .kpi.k-pos { border-top-color: var(--pos); }
+    .kpi.k-tot { border-top-color: var(--navy); }
 
-    @media (max-width: 768px) {
-      .row-item { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .hours { align-self: flex-end; }
+    .kpi-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .kpi-name { font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .kpi-pct { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .k-obv .kpi-pct { color: var(--obv); }
+    .k-pos .kpi-pct { color: var(--pos); }
+    .k-tot .kpi-pct { color: var(--navy); }
+
+    .kpi-val { font-size: 1.5rem; font-weight: 800; margin-top: 8px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+    .kpi-val small { font-size: .95rem; font-weight: 600; color: var(--muted); }
+    .kpi-note { font-size: .8rem; color: var(--muted); margin-top: 3px; }
+
+    .track { position: relative; height: 10px; background: #eaeff5; border-radius: 999px; margin: 12px 0 10px; overflow: hidden; }
+    .track-fill { height: 100%; border-radius: 999px; transition: width .35s ease; }
+    .k-obv .track-fill { background: var(--obv); }
+    .k-pos .track-fill { background: var(--pos); }
+    .k-tot .track-fill { background: var(--navy); }
+    .track-goal { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: .45; }
+
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; font-size: .76rem; font-weight: 700; border: 1px solid transparent; }
+    .pill-ok   { background: var(--ok-soft);   color: var(--ok);   border-color: var(--ok-line); }
+    .pill-wait { background: var(--warn-soft); color: var(--warn); border-color: var(--warn-line); }
+
+    /* ---------- Next up ---------- */
+    .nextup {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--navy);
+      border-radius: var(--r); padding: 13px 16px; margin-top: 12px; box-shadow: var(--sh-1);
+    }
+    .nextup .lbl { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .nextup .txt { font-weight: 600; }
+    .nextup .txt b { font-weight: 800; }
+
+    /* ---------- Toolbar ---------- */
+    .toolbar {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+      padding: 12px; margin-top: 16px; box-shadow: var(--sh-1);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .search {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--line-2); border-radius: var(--r-sm); padding: 8px 11px; background: #fbfcfe;
+    }
+    .search input { border: 0; outline: 0; background: transparent; flex: 1; font: inherit; color: var(--ink); min-width: 0; }
+    .search input::-webkit-search-cancel-button, .search input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+    .search button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 1rem; padding: 0 2px; }
+    .fset { display: flex; gap: 6px; flex-wrap: wrap; }
+    .fbtn {
+      background: #f1f5f9; border: 1px solid var(--line); border-radius: 999px;
+      padding: 7px 13px; cursor: pointer;
+      font: 600 .82rem system-ui, sans-serif; color: #475569;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .fbtn:hover { background: #e2e8f0; }
+    .fbtn[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .fbtn .n { opacity: .65; font-weight: 700; margin-left: 3px; }
+
+    /* ---------- Timeline ---------- */
+    .month {
+      display: flex; align-items: center; gap: 12px;
+      margin: 26px 2px 12px; font-size: .78rem; font-weight: 800;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    }
+    .month::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+
+    .day {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+      margin-bottom: 10px; overflow: hidden; box-shadow: var(--sh-1);
+    }
+    .day.is-today { border-color: var(--navy); box-shadow: 0 0 0 2px rgb(23 37 90 / .12), var(--sh-1); }
+
+    .day-head {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 11px 16px; background: #f8fafc; border-bottom: 1px solid var(--line);
+    }
+    .day-date { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .day-dow { font-size: .74rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+    .day-num { font-size: 1rem; font-weight: 800; letter-spacing: -.01em; }
+    .day-spacer { flex: 1; }
+    .day-sum { font-size: .8rem; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .day-all {
+      background: #fff; border: 1px solid var(--line-2); border-radius: 999px;
+      padding: 5px 11px; cursor: pointer; font: 700 .74rem system-ui, sans-serif; color: #475569;
+    }
+    .day-all:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .today-tag { background: var(--navy); color: #fff; font-size: .68rem; font-weight: 800; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; }
+
+    /* ---------- Session row ---------- */
+    .ses {
+      display: grid;
+      grid-template-columns: 26px 104px 1fr auto;
+      align-items: start; gap: 14px;
+      padding: 12px 16px; border-top: 1px solid #f1f5f9;
+      border-left: 4px solid transparent;
+      cursor: pointer; transition: background .12s;
+    }
+    .day > .ses:first-of-type { border-top: 0; }
+    .ses:hover { background: #f8fafc; }
+    .ses.t-obv  { border-left-color: var(--obv); }
+    .ses.t-pos  { border-left-color: var(--pos); }
+    .ses.t-exam { border-left-color: var(--exam); background: var(--exam-soft); }
+    .ses.t-info { border-left-color: var(--line-2); background: #fbfcfd; cursor: default; }
+    .ses.t-info:hover { background: #fbfcfd; }
+    .ses.done { background: var(--ok-soft); border-left-color: var(--ok); }
+    .ses.done:hover { background: #e9fbef; }
+
+    .ses input[type=checkbox] { width: 20px; height: 20px; margin-top: 2px; cursor: pointer; accent-color: var(--ok); }
+    .ses .noc { width: 20px; height: 20px; display: grid; place-items: center; color: var(--line-2); font-size: .9rem; margin-top: 2px; }
+
+    .ses-time { font-size: .86rem; font-weight: 700; color: #334155; font-variant-numeric: tabular-nums; padding-top: 2px; white-space: nowrap; }
+    .ses-time .dash { color: var(--line-2); }
+
+    .ses-body { min-width: 0; }
+    .ses-title { font-weight: 700; font-size: .97rem; line-height: 1.35; }
+    .ses.done .ses-title { color: #166534; }
+    .ses-meta { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .8rem; color: var(--muted); }
+
+    .tag { font-size: .68rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; border: 1px solid transparent; white-space: nowrap; }
+    .tag-obv  { background: var(--obv-soft);  color: var(--obv);  border-color: var(--obv-line); }
+    .tag-pos  { background: var(--pos-soft);  color: var(--pos);  border-color: var(--pos-line); }
+    .tag-exam { background: #fff; color: var(--exam); border-color: var(--exam-line); }
+    .tag-info { background: #f1f5f9; color: var(--muted); border-color: var(--line); }
+
+    .meta-i { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .loc-live { color: #3730a3; font-weight: 700; }
+    .warnflag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-line);
+      border-radius: 5px; padding: 2px 7px; font-size: .72rem; font-weight: 700;
+    }
+
+    .ses-note {
+      grid-column: 3 / -1; margin-top: 8px;
+      background: var(--warn-soft); border: 1px solid var(--warn-line); border-left: 3px solid var(--warn);
+      border-radius: var(--r-sm); padding: 8px 11px; font-size: .8rem; color: #713f12; line-height: 1.45;
+    }
+    .ses-h { text-align: right; padding-top: 1px; }
+    .ses-h b { font-size: 1.02rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+    .ses-h span { display: block; font-size: .7rem; color: var(--muted); font-weight: 700; letter-spacing: .04em; }
+    .ses.t-info .ses-h b { color: var(--line-2); }
+
+    /* ---------- Misc ---------- */
+    .empty { background: var(--surface); border: 1px dashed var(--line-2); border-radius: var(--r); padding: 34px; text-align: center; color: var(--muted); }
+    .legend {
+      margin-top: 22px; background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r); padding: 14px 16px; font-size: .82rem; color: var(--muted); box-shadow: var(--sh-1);
+    }
+    .legend h3 { font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); margin-bottom: 8px; }
+    .legend ul { list-style: none; display: grid; gap: 6px; }
+    .legend li { display: flex; gap: 8px; align-items: flex-start; }
+    .legend .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; margin-top: 4px; }
+
+    @media (max-width: 720px) {
+      body { padding: 14px 12px 48px; }
+      .hero { padding: 18px; }
+      .hero h1 { font-size: 1.2rem; }
+      .ses { grid-template-columns: 24px 1fr auto; gap: 10px; row-gap: 6px; padding: 12px 13px; }
+      .ses-time { grid-column: 2 / 4; order: -1; font-size: .82rem; }
+      .ses-note { grid-column: 2 / -1; }
+      .ses input[type=checkbox], .ses .noc { grid-row: span 2; }
+      .ses-h { align-self: center; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .who, .toolbar, .day-all, .nextup, .hero { box-shadow: none; }
+      .who, .toolbar, .day-all { display: none; }
+      .day { break-inside: avoid; }
     }
   </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="container">
-  <header>
-    <div>
-      <h1>SD1 Košarka 2026 - 2. Skupina</h1>
-      <p>Nadzor prisotnosti kandidatov • 80 % prag za pristop k izpitu</p>
+  <header class="hero">
+    <h1>SD1 Košarka 2026 — 2. skupina</h1>
+    <div class="sub">Evidenca prisotnosti kandidatov · za pristop k izpitu je potrebnih 80 % ur pri obveznih in pri posebnih vsebinah</div>
+    <div class="hero-meta">
+      <span class="chip-meta" id="meta-range">—</span>
+      <span class="chip-meta" id="meta-count">—</span>
+      <span class="chip-meta">Obvezne 22 h · Posebne 107 h · Skupaj 129 h</span>
     </div>
   </header>
 
-  <!-- USER SWITCHER TABS -->
-  <div class="user-bar">
-    <button class="user-tab active" id="tab-matej" onclick="switchUser('matej')">
-      <span class="user-avatar">👤</span> Matej Bojić
-    </button>
-    <button class="user-tab" id="tab-mitja" onclick="switchUser('mitja')">
-      <span class="user-avatar">👤</span> Mitja Zimic
-    </button>
-    <button class="user-tab" id="tab-davor" onclick="switchUser('davor')">
-      <span class="user-avatar">👤</span> Davor Majc
-    </button>
-  </div>
+  <nav class="who" id="who" role="tablist" aria-label="Kandidat"></nav>
 
-  <!-- KPI SUMMARY (FOR ACTIVE USER) -->
-  <div class="kpi-grid">
-    <div class="card obv">
-      <div class="card-top">
-        <span class="card-title">Obvezne vsebine</span>
-        <span class="card-pct pct-orange" id="kpi-obv-pct">0%</span>
+  <section class="kpis">
+    <div class="kpi k-obv">
+      <div class="kpi-head">
+        <span class="kpi-name">Obvezne vsebine</span>
+        <span class="kpi-pct" id="obv-pct">0 %</span>
       </div>
-      <div class="card-val" id="kpi-obv">0.0 / 22.0 h</div>
-      <div class="card-sub">Cilj 80 %: <strong>17.6 h</strong> (max manko 4.4 h)</div>
-      <div class="prog-bg"><div class="prog-fill" id="prog-obv" style="width:0%; background:var(--orange);"></div></div>
-      <span class="badge badge-pending" id="badge-obv">Manjka še 17.6 h</span>
+      <div class="kpi-val" id="obv-val">0,0 <small>/ 22 h</small></div>
+      <div class="kpi-note">Prag 80 % = <strong>17,6 h</strong> · dovoljen izostanek 4,4 h</div>
+      <div class="track"><div class="track-fill" id="obv-bar" style="width:0"></div><div class="track-goal" style="left:80%"></div></div>
+      <span class="pill pill-wait" id="obv-pill">—</span>
     </div>
 
-    <div class="card pos">
-      <div class="card-top">
-        <span class="card-title">Posebne vsebine</span>
-        <span class="card-pct pct-blue" id="kpi-pos-pct">0%</span>
+    <div class="kpi k-pos">
+      <div class="kpi-head">
+        <span class="kpi-name">Posebne vsebine</span>
+        <span class="kpi-pct" id="pos-pct">0 %</span>
       </div>
-      <div class="card-val" id="kpi-pos">0.0 / 107.0 h</div>
-      <div class="card-sub">Cilj 80 %: <strong>85.6 h</strong> (max manko 21.4 h)</div>
-      <div class="prog-bg"><div class="prog-fill" id="prog-pos" style="width:0%; background:var(--blue);"></div></div>
-      <span class="badge badge-pending" id="badge-pos">Manjka še 85.6 h</span>
+      <div class="kpi-val" id="pos-val">0,0 <small>/ 107 h</small></div>
+      <div class="kpi-note">Prag 80 % = <strong>85,6 h</strong> · dovoljen izostanek 21,4 h</div>
+      <div class="track"><div class="track-fill" id="pos-bar" style="width:0"></div><div class="track-goal" style="left:80%"></div></div>
+      <span class="pill pill-wait" id="pos-pill">—</span>
     </div>
 
-    <div class="card tot">
-      <div class="card-top">
-        <span class="card-title" id="tot-title">Skupno usposabljanje</span>
-        <span class="card-pct pct-total" id="kpi-tot-pct">0%</span>
+    <div class="kpi k-tot">
+      <div class="kpi-head">
+        <span class="kpi-name" id="tot-name">Skupaj</span>
+        <span class="kpi-pct" id="tot-pct">0 %</span>
       </div>
-      <div class="card-val" id="kpi-tot">0.0 / 129.0 h</div>
-      <div class="card-sub">Pogoj za pristop k zaključnemu izpitu</div>
-      <div class="prog-bg"><div class="prog-fill" id="prog-tot" style="width:0%; background:var(--primary);"></div></div>
-      <span class="badge badge-pending" id="badge-tot">Pristop še ni možen</span>
+      <div class="kpi-val" id="tot-val">0,0 <small>/ 129 h</small></div>
+      <div class="kpi-note" id="tot-note">Opravljenih 0 od 46 predavanj</div>
+      <div class="track"><div class="track-fill" id="tot-bar" style="width:0"></div><div class="track-goal" style="left:80%"></div></div>
+      <span class="pill pill-wait" id="tot-pill">—</span>
     </div>
+  </section>
+
+  <div class="nextup" id="nextup" hidden>
+    <span class="lbl">Naslednje</span>
+    <span class="txt" id="nextup-txt"></span>
   </div>
 
-  <!-- FILTERS -->
-  <div class="filters">
-    <button class="btn-f active" onclick="setF('all', this)">Vse vsebine (48)</button>
-    <button class="btn-f" onclick="setF('OBV', this)">Samo Obvezne (oranžna)</button>
-    <button class="btn-f" onclick="setF('POS', this)">Samo Posebne (modra)</button>
-    <button class="btn-f" onclick="setF('daljava', this)">Na daljavo (Zoom)</button>
-    <button class="btn-f" onclick="setF('fizicno', this)">Fizično (Ljubljana)</button>
+  <div class="toolbar">
+    <label class="search">
+      <span aria-hidden="true">🔎</span>
+      <input type="search" id="q" placeholder="Išči po temi, predavatelju ali prostoru…" autocomplete="off">
+      <button type="button" id="q-clear" title="Počisti" hidden>✕</button>
+    </label>
+    <div class="fset" id="filters"></div>
   </div>
 
-  <!-- SCHEDULE LIST -->
-  <div class="list" id="schedule-list"></div>
+  <div id="timeline"></div>
+
+  <div class="legend">
+    <h3>Legenda in opombe</h3>
+    <ul>
+      <li><span class="sw" style="background:var(--obv)"></span><span><strong>Obvezne vsebine</strong> (22 h): Odgovornost in zakonodaja v športu, Osnove gibanja človeka, Osnove športne vadbe, Osnove medicine športa, Psihosocialne osnove športa.</span></li>
+      <li><span class="sw" style="background:var(--pos)"></span><span><strong>Posebne vsebine</strong> (107 h): vse ostale strokovne vsebine košarke.</span></li>
+      <li><span class="sw" style="background:var(--exam)"></span><span><strong>Izpit</strong> — se ne šteje v ure usposabljanja.</span></li>
+      <li><span class="sw" style="background:var(--line-2)"></span><span><strong>Klinike in rezervni termini</strong> — informativno, ne štejejo v ure usposabljanja.</span></li>
+      <li><span class="sw" style="background:var(--warn)"></span><span>Vrstice z oznako <em>ure ≠ termin</em> so tiste, kjer se v uradnem urniku število ur ne ujema s časovnim razponom. Šteje se vrednost iz urnika; priporočamo preveritev pri organizatorju.</span></li>
+    </ul>
+  </div>
+
 </div>
 
 <script>
-  const users = {
-    matej: { name: "Matej Bojić", storageKey: "sd1_g2_att_matej" },
-    mitja: { name: "Mitja Zimic", storageKey: "sd1_g2_att_mitja" },
-    davor: { name: "Davor Majc", storageKey: "sd1_g2_att_davor" }
-  };
+"use strict";
 
-  let currentUser = 'matej';
+/* ------------------------------------------------------------------
+   Kandidati
+------------------------------------------------------------------ */
+const USERS = [
+  { id: "matej", name: "Matej Bojić", initials: "MB", key: "sd1_g2_att_matej" },
+  { id: "mitja", name: "Mitja Zimic", initials: "MZ", key: "sd1_g2_att_mitja" },
+  { id: "davor", name: "Davor Majc", initials: "DM", key: "sd1_g2_att_davor" }
+];
 
-  // Urnik 2. skupina (48 postavk)
-  const itemsData = [
-    // Obvezne vsebine (22 h)
-    { id: 201, type: "OBV", dan: "petek", datum: "28.08.2026", ura: "17:00-19:00", tema: "Poslovanje v športu", ur: 2.0, pred: "Damir Radenović", prostor: "na daljavo" },
-    { id: 202, type: "OBV", dan: "četrtek", datum: "03.09.2026", ura: "17:00-18:00", tema: "Vodenje kariere", ur: 1.0, pred: "PVD", prostor: "na daljavo" },
-    { id: 203, type: "OBV", dan: "četrtek", datum: "03.09.2026", ura: "18:00-20:00", tema: "Komunikacijske veščine", ur: 2.0, pred: "PVD", prostor: "na daljavo" },
-    { id: 204, type: "OBV", dan: "petek", datum: "04.09.2026", ura: "19:00-21:00", tema: "Odgovornost in zakonodaja v športu", ur: 2.0, pred: "Janez Vodičar", prostor: "na daljavo" },
-    { id: 205, type: "OBV", dan: "nedelja", datum: "27.09.2026", ura: "13:00-18:00", tema: "Osnove športne vadbe", ur: 5.0, pred: "Anže Zdolšek", prostor: "predavalnica A" },
-    { id: 206, type: "OBV", dan: "petek", datum: "09.10.2026", ura: "17:00-19:00", tema: "Zgodovina športa v svetu in Sloveniji", ur: 2.0, pred: "Tomaž Pavlin", prostor: "na daljavo" },
-    { id: 207, type: "OBV", dan: "petek", datum: "09.10.2026", ura: "19:00-21:00", tema: "Organiziranost športa v svetu in Sloveniji", ur: 2.0, pred: "Tomaž Pavlin", prostor: "na daljavo" },
-    { id: 208, type: "OBV", dan: "četrtek", datum: "22.10.2026", ura: "17:00-20:00", tema: "Osnove uporabe informacijske tehnologije", ur: 3.0, pred: "Gorazd Trontelj", prostor: "na daljavo" },
-    { id: 209, type: "OBV", dan: "nedelja", datum: "08.11.2026", ura: "09:00-14:00", tema: "Psihosocialne osnove športa", ur: 5.0, pred: "PVD", prostor: "na daljavo" },
+/* ------------------------------------------------------------------
+   Urnik – 2. skupina, prepisan iz uradnega urnika
+   Urnik_SD1KO_ARKA_2026 (strani 4–6).
 
-    // Posebne vsebine (107 h)
-    { id: 210, type: "POS", dan: "četrtek", datum: "27.08.2026", ura: "17:00-18:00", tema: "Predstavitev delovanja ZKTS in postopki pridobitve trenerskega kartona", ur: 1.0, pred: "Dejan Gašparin", prostor: "na daljavo" },
-    { id: 211, type: "POS", dan: "četrtek", datum: "27.08.2026", ura: "18:00-21:00", tema: "Osnove telesne priprave - teorija", ur: 3.0, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 212, type: "POS", dan: "petek", datum: "04.09.2026", ura: "17:00-19:00", tema: "Najpogostejše poškodbe v košarki in prva pomoč", ur: 2.0, pred: "Tadej Jug", prostor: "na daljavo" },
-    { id: 213, type: "POS", dan: "četrtek", datum: "10.09.2026", ura: "17:00-20:00", tema: "Tehnično taktična priprava do 16 let", ur: 3.0, pred: "Dejan Čikić", prostor: "na daljavo" },
-    { id: 214, type: "POS", dan: "petek", datum: "11.09.2026", ura: "18:00-20:00", tema: "Košarka 3 na 3", ur: 2.0, pred: "Matic Vidic", prostor: "na daljavo" },
-    { id: 215, type: "POS", dan: "četrtek", datum: "17.09.2026", ura: "17:00-19:00", tema: "Delo z osebami s posebnimi potrebami", ur: 2.0, pred: "Žiga Kobašević", prostor: "na daljavo" },
-    { id: 216, type: "POS", dan: "četrtek", datum: "17.09.2026", ura: "19:00-20:30", tema: "Košarka na vozičkih", ur: 1.5, pred: "Žiga Kobašević", prostor: "na daljavo" },
-    { id: 217, type: "POS", dan: "petek", datum: "18.09.2026", ura: "17:00-20:00", tema: "Tehnično taktična priprava do 16 let", ur: 3.0, pred: "Dejan Čikić", prostor: "na daljavo" },
-    { id: 218, type: "POS", dan: "sobota", datum: "19.09.2026", ura: "09:00-13:00", tema: "Košarkarska pravila in sojenje - teorija", ur: 4.0, pred: "Matej Špendl", prostor: "predavalnica A" },
-    { id: 219, type: "POS", dan: "sobota", datum: "19.09.2026", ura: "13:00-17:00", tema: "Košarkarska pravila in sojenje - praksa", ur: 4.0, pred: "Matej Špendl", prostor: "dvorana Krn" },
-    { id: 220, type: "POS", dan: "nedelja", datum: "20.09.2026", ura: "09:00-14:00", tema: "Osnove gibanja človeka", ur: 5.0, pred: "Jana Videtič", prostor: "dvorana Grintovec" },
-    { id: 221, type: "POS", dan: "četrtek", datum: "24.09.2026", ura: "17:00-20:00", tema: "Psihološka priprava ekip", ur: 3.0, pred: "PVD", prostor: "na daljavo" },
-    { id: 222, type: "POS", dan: "petek", datum: "25.09.2026", ura: "17:00-22:00", tema: "Osnove vodenja mlajših ekip", ur: 4.0, pred: "Anže Zdolšek", prostor: "na daljavo" },
-    { id: 223, type: "POS", dan: "sobota", datum: "26.09.2026", ura: "09:00-12:00", tema: "Košarkarska pravila in sojenje - teorija", ur: 3.0, pred: "Matej Špendl", prostor: "predavalnica B" },
-    { id: 224, type: "POS", dan: "sobota", datum: "26.09.2026", ura: "12:00-16:30", tema: "Košarkarska pravila in sojenje - praksa", ur: 4.5, pred: "Matej Špendl", prostor: "dvorana Krn" },
-    { id: 225, type: "POS", dan: "nedelja", datum: "27.09.2026", ura: "09:00-13:00", tema: "Osnove telesne priprave - praktični del", ur: 4.0, pred: "Anže Zdolšek", prostor: "dvorana Grintovec" },
-    { id: 226, type: "POS", dan: "četrtek", datum: "01.10.2026", ura: "17:00-19:00", tema: "Metode poučevanja in treniranja v košarki", ur: 2.0, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 227, type: "POS", dan: "četrtek", datum: "01.10.2026", ura: "19:00-20:00", tema: "Zgodovina košarke v svetu in Sloveniji", ur: 1.0, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 228, type: "POS", dan: "petek", datum: "02.10.2026", ura: "17:00-20:00", tema: "Osnove vodenja mlajših ekip", ur: 3.0, pred: "Borut Sila", prostor: "dvorana Krn" },
-    { id: 229, type: "POS", dan: "sobota", datum: "03.10.2026", ura: "09:00-12:00", tema: "Osnove vodenja mlajših ekip", ur: 3.0, pred: "Borut Sila", prostor: "predavalnica C" },
-    { id: 230, type: "POS", dan: "sobota", datum: "03.10.2026", ura: "12:00-15:00", tema: "Osnove vodenja mlajših ekip", ur: 3.0, pred: "Borut Sila", prostor: "predavalnica C" },
-    { id: 231, type: "POS", dan: "nedelja", datum: "04.10.2026", ura: "09:00-12:00", tema: "Osnove košarkarske tehnike - praksa", ur: 3.0, pred: "Blaž Bergant", prostor: "dvorana Krn" },
-    { id: 232, type: "POS", dan: "nedelja", datum: "04.10.2026", ura: "12:15-16:15", tema: "Osnove košarkarske tehnike - praksa", ur: 4.0, pred: "Blaž Bergant", prostor: "dvorana Krn" },
-    { id: 233, type: "POS", dan: "nedelja", datum: "04.10.2026", ura: "17:00-20:00", tema: "Osnove košarkarske tehnike - teorija", ur: 3.0, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 234, type: "POS", dan: "četrtek", datum: "08.10.2026", ura: "20:00-21:00", tema: "Zgodovina košarke v svetu in Sloveniji", ur: 1.0, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 235, type: "POS", dan: "četrtek", datum: "08.10.2026", ura: "21:00-21:30", tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", ur: 0.5, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 236, type: "POS", dan: "sobota", datum: "10.10.2026", ura: "09:00-13:00", tema: "Osnove košarkarske taktike - praksa", ur: 4.0, pred: "Blaž Bergant", prostor: "dvorana Krn" },
-    { id: 237, type: "POS", dan: "sobota", datum: "10.10.2026", ura: "13:30-16:30", tema: "Osnove košarkarske taktike - praksa", ur: 3.0, pred: "Blaž Bergant", prostor: "dvorana Krn" },
-    { id: 238, type: "POS", dan: "nedelja", datum: "11.10.2026", ura: "09:00-13:00", tema: "Osnove telesne priprave - praktični del", ur: 3.0, pred: "Anže Zdolšek", prostor: "dvorana Grintovec" },
-    { id: 239, type: "POS", dan: "nedelja", datum: "11.10.2026", ura: "13:00-16:00", tema: "Osnove vodenja mlajših ekip", ur: 3.0, pred: "Anže Zdolšek", prostor: "dvorana Grintovec" },
-    { id: 240, type: "POS", dan: "četrtek", datum: "15.10.2026", ura: "20:00-22:00", tema: "Predstavitev organizacijske dejavnosti KZS", ur: 2.0, pred: "Gorazd Trontelj", prostor: "na daljavo" },
-    { id: 241, type: "POS", dan: "petek", datum: "16.10.2026", ura: "17:00-20:00", tema: "Osnove košarkarske taktike - teorija", ur: 3.0, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 242, type: "POS", dan: "petek", datum: "16.10.2026", ura: "20:00-21:30", tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", ur: 1.5, pred: "Frane Erčulj", prostor: "na daljavo" },
-    { id: 243, type: "POS", dan: "nedelja", datum: "18.10.2026", ura: "09:00-13:00", tema: "Tehnično taktična priprava do 16 let", ur: 3.0, pred: "Dejan Čikić", prostor: "dvorana Krn" },
-    { id: 244, type: "POS", dan: "nedelja", datum: "18.10.2026", ura: "13:00-16:00", tema: "Tehnično taktična priprava do 16 let", ur: 3.0, pred: "Dejan Čikić", prostor: "dvorana Krn" },
-    { id: 245, type: "POS", dan: "četrtek", datum: "22.10.2026", ura: "20:00-22:00", tema: "Predstavitev tekmovanj pod okriljem KZS", ur: 2.0, pred: "Gorazd Trontelj", prostor: "na daljavo" },
-    { id: 246, type: "POS", dan: "petek", datum: "23.10.2026", ura: "17:00-21:00", tema: "Osnove medicine športa", ur: 5.0, pred: "Aljaž Kren", prostor: "na daljavo" },
+   tip:  OBV  = obvezne vsebine (v urniku obarvane oranžno)
+         POS  = posebne vsebine (v urniku obarvane modro)
+         IZPIT= zaključni izpit (ne šteje v ure)
+         INFO = klinike / rezervni termini (ne štejejo v ure)
 
-    // Izpit
-    { id: 247, type: "IZPIT", dan: "petek", datum: "21.11.2026", ura: "17:00-18:00", tema: "IZPIT - teorija", ur: 1.0, pred: "Jana Videtič", prostor: "predavalnica B" },
-    { id: 248, type: "IZPIT", dan: "petek", datum: "21.11.2026", ura: "18:15-20:15", tema: "IZPIT - praktično", ur: 2.0, pred: "Blaž Bergant", prostor: "dvorana Krn" }
+   datum je v obliki ISO (LLLL-MM-DD); dan v tednu se izračuna sproti,
+   da se datum in dan nikoli ne moreta razhajati.
+   id-ji so enaki kot v prejšnji različici, da ostanejo že vpisane
+   prisotnosti v brskalniku.
+------------------------------------------------------------------ */
+const ITEMS = [
+  // --- avgust ---
+  { id: 210, tip: "POS", d: "2026-08-27", od: "17:00", do: "18:00", ur: 1,   tema: "Predstavitev delovanja ZKTS in postopki pridobitve trenerskega kartona", pred: "Dejan Gašparin", kraj: "na daljavo" },
+  { id: 211, tip: "POS", d: "2026-08-27", od: "18:00", do: "21:00", ur: 3,   tema: "Osnove telesne priprave – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 201, tip: "POS", d: "2026-08-28", od: "17:00", do: "19:00", ur: 2,   tema: "Poslovanje v športu", pred: "Damir Radenović", kraj: "na daljavo" },
+  { id: 901, tip: "INFO", d: "2026-08-29", tema: "Klinika za trenerje ČL in U20", kraj: "klinika" },
+  { id: 902, tip: "INFO", d: "2026-08-30", tema: "Klinika za trenerje ČL in U20", kraj: "klinika" },
+
+  // --- september ---
+  { id: 202, tip: "POS", d: "2026-09-03", od: "17:00", do: "18:00", ur: 1,   tema: "Vodenje kariere", pred: "PVD", kraj: "na daljavo" },
+  { id: 203, tip: "POS", d: "2026-09-03", od: "18:00", do: "20:00", ur: 2,   tema: "Komunikacijske veščine", pred: "PVD", kraj: "na daljavo" },
+  { id: 212, tip: "POS", d: "2026-09-04", od: "17:00", do: "19:00", ur: 2,   tema: "Najpogostejše poškodbe v košarki in prva pomoč", pred: "Tadej Jug", kraj: "na daljavo" },
+  { id: 204, tip: "OBV", d: "2026-09-04", od: "19:00", do: "21:00", ur: 2,   tema: "Odgovornost in zakonodaja v športu", pred: "Janez Vodičar", kraj: "na daljavo" },
+  { id: 903, tip: "INFO", d: "2026-09-05", tema: "Klinika za trenerje U18 in U16", kraj: "klinika" },
+  { id: 904, tip: "INFO", d: "2026-09-06", tema: "Klinika za trenerje U18 in U16", kraj: "klinika" },
+  { id: 213, tip: "POS", d: "2026-09-10", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
+  { id: 214, tip: "POS", d: "2026-09-11", od: "18:00", do: "20:00", ur: 2,   tema: "Košarka 3 na 3", pred: "Matic Vidic", kraj: "na daljavo" },
+  { id: 905, tip: "INFO", d: "2026-09-12", tema: "Klinika za trenerje U12", kraj: "klinika" },
+  { id: 906, tip: "INFO", d: "2026-09-13", tema: "Klinika za trenerje U14", kraj: "klinika" },
+  { id: 215, tip: "POS", d: "2026-09-17", od: "17:00", do: "19:00", ur: 2,   tema: "Delo z osebami s posebnimi potrebami", pred: "Žiga Kobašević", kraj: "na daljavo" },
+  { id: 216, tip: "POS", d: "2026-09-17", od: "19:00", do: "20:30", ur: 1.5, tema: "Košarka na vozičkih", pred: "Žiga Kobašević", kraj: "na daljavo" },
+  { id: 217, tip: "POS", d: "2026-09-18", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
+  { id: 218, tip: "POS", d: "2026-09-19", od: "09:00", do: "13:00", ur: 4,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica A" },
+  { id: 219, tip: "POS", d: "2026-09-19", od: "13:00", do: "17:00", ur: 4,   tema: "Košarkarska pravila in sojenje – praksa", pred: "Matej Špendl", kraj: "dvorana Krn" },
+  { id: 220, tip: "OBV", d: "2026-09-20", od: "09:00", do: "14:00", ur: 5,   tema: "Osnove gibanja človeka", pred: "Jana Videtič", kraj: "dvorana Grintovec" },
+  { id: 221, tip: "POS", d: "2026-09-24", od: "17:00", do: "20:00", ur: 3,   tema: "Psihološka priprava ekip", pred: "PVD", kraj: "na daljavo" },
+  { id: 222, tip: "POS", d: "2026-09-25", od: "17:00", do: "22:00", ur: 4,   tema: "Osnove vodenja mlajših ekip", pred: "Anže Zdolšek", kraj: "na daljavo" },
+  { id: 223, tip: "POS", d: "2026-09-26", od: "09:00", do: "12:00", ur: 3,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica B" },
+  { id: 224, tip: "POS", d: "2026-09-26", od: "12:00", do: "16:30", ur: 4.5, tema: "Košarkarska pravila in sojenje – praksa", pred: "Matej Špendl", kraj: "dvorana Krn" },
+  { id: 225, tip: "POS", d: "2026-09-27", od: "09:00", do: "13:00", ur: 4,   tema: "Osnove telesne priprave – praktični del", pred: "Anže Zdolšek", kraj: "dvorana Grintovec" },
+  { id: 205, tip: "OBV", d: "2026-09-27", od: "13:00", do: "18:00", ur: 5,   tema: "Osnove športne vadbe", pred: "Anže Zdolšek", kraj: "predavalnica A" },
+
+  // --- oktober ---
+  { id: 226, tip: "POS", d: "2026-10-01", od: "17:00", do: "19:00", ur: 2,   tema: "Metode poučevanja in treniranja v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 227, tip: "POS", d: "2026-10-01", od: "19:00", do: "20:00", ur: 1,   tema: "Zgodovina košarke v svetu in Sloveniji", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 228, tip: "POS", d: "2026-10-02", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "dvorana Krn" },
+  { id: 229, tip: "POS", d: "2026-10-03", od: "09:00", do: "12:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "predavalnica C" },
+  { id: 230, tip: "POS", d: "2026-10-03", od: "12:00", do: "15:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "predavalnica C" },
+  { id: 231, tip: "POS", d: "2026-10-04", od: "09:00", do: "12:00", ur: 3,   tema: "Osnove košarkarske tehnike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
+  { id: 232, tip: "POS", d: "2026-10-04", od: "12:15", do: "16:15", ur: 4,   tema: "Osnove košarkarske tehnike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
+  { id: 233, tip: "POS", d: "2026-10-08", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove košarkarske tehnike – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 234, tip: "POS", d: "2026-10-08", od: "20:00", do: "21:00", ur: 1,   tema: "Zgodovina košarke v svetu in Sloveniji", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 235, tip: "POS", d: "2026-10-08", od: "21:00", do: "21:30", ur: 0.5, tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 206, tip: "POS", d: "2026-10-09", od: "17:00", do: "19:00", ur: 2,   tema: "Zgodovina športa v svetu in Sloveniji", pred: "Tomaž Pavlin", kraj: "na daljavo" },
+  { id: 207, tip: "POS", d: "2026-10-09", od: "19:00", do: "21:00", ur: 2,   tema: "Organiziranost športa v svetu in Sloveniji", pred: "Tomaž Pavlin", kraj: "na daljavo" },
+  { id: 236, tip: "POS", d: "2026-10-10", od: "09:00", do: "13:00", ur: 4,   tema: "Osnove košarkarske taktike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
+  { id: 237, tip: "POS", d: "2026-10-10", od: "13:30", do: "16:30", ur: 3,   tema: "Osnove košarkarske taktike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
+  { id: 238, tip: "POS", d: "2026-10-11", od: "09:00", do: "13:00", ur: 3,   tema: "Osnove telesne priprave – praktični del", pred: "Anže Zdolšek", kraj: "dvorana Grintovec" },
+  { id: 239, tip: "POS", d: "2026-10-11", od: "13:00", do: "16:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Anže Zdolšek", kraj: "dvorana Grintovec" },
+  { id: 240, tip: "POS", d: "2026-10-15", od: "20:00", do: "22:00", ur: 2,   tema: "Predstavitev organizacijske dejavnosti KZS", pred: "Gorazd Trontelj", kraj: "na daljavo" },
+  { id: 241, tip: "POS", d: "2026-10-16", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove košarkarske taktike – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 242, tip: "POS", d: "2026-10-16", od: "20:00", do: "21:30", ur: 1.5, tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
+  { id: 907, tip: "INFO", d: "2026-10-17", tema: "Rezervni termin", kraj: "rezerva" },
+  { id: 243, tip: "POS", d: "2026-10-18", od: "09:00", do: "13:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "dvorana Krn" },
+  { id: 244, tip: "POS", d: "2026-10-18", od: "13:00", do: "16:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "dvorana Krn" },
+  { id: 208, tip: "POS", d: "2026-10-22", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove uporabe informacijske tehnologije", pred: "Gorazd Trontelj", kraj: "na daljavo" },
+  { id: 245, tip: "POS", d: "2026-10-22", od: "20:00", do: "22:00", ur: 2,   tema: "Predstavitev tekmovanj pod okriljem KZS", pred: "Gorazd Trontelj", kraj: "na daljavo" },
+  { id: 246, tip: "OBV", d: "2026-10-23", od: "17:00", do: "21:00", ur: 5,   tema: "Osnove medicine športa", pred: "Aljaž Kren", kraj: "na daljavo" },
+
+  // --- november ---
+  { id: 908, tip: "INFO", d: "2026-11-07", tema: "Klinika za trenerje U10", kraj: "klinika" },
+  { id: 209, tip: "OBV", d: "2026-11-08", od: "09:00", do: "14:00", ur: 5,   tema: "Psihosocialne osnove športa", pred: "PVD", kraj: "na daljavo" },
+  { id: 247, tip: "IZPIT", d: "2026-11-21", od: "17:00", do: "18:00", ur: 1, tema: "IZPIT – teorija", pred: "Jana Videtič", kraj: "predavalnica B",
+    opomba: "V uradnem urniku je zapisano »petek, 21.11.2025«. Leta 2026 je 21. november sobota – datum izpita je treba potrditi pri organizatorju." },
+  { id: 248, tip: "IZPIT", d: "2026-11-21", od: "18:15", do: "20:15", ur: 2, tema: "IZPIT – praktično", pred: "Blaž Bergant", kraj: "dvorana Krn" }
+];
+
+/* ------------------------------------------------------------------
+   Cilji (iz urnika: obvezne 22 h, posebne 107 h, skupaj 129 h)
+------------------------------------------------------------------ */
+const GOALS = { OBV: 22, POS: 107 };
+const PRAG = 0.8;
+
+/* ------------------------------------------------------------------
+   Supabase (neobvezno – izpolni, če želiš skupno bazo)
+------------------------------------------------------------------ */
+const SUPABASE_URL = "";
+const SUPABASE_KEY = "";
+let sb = null;
+if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+/* ------------------------------------------------------------------
+   Stanje
+------------------------------------------------------------------ */
+const DNEVI = ["nedelja", "ponedeljek", "torek", "sreda", "četrtek", "petek", "sobota"];
+const MESECI = ["januar","februar","marec","april","maj","junij","julij","avgust","september","oktober","november","december"];
+
+const state = {
+  user: USERS[0].id,
+  filter: "all",
+  q: "",
+  done: {}
+};
+
+USERS.forEach(u => {
+  let raw = {};
+  try { raw = JSON.parse(localStorage.getItem(u.key) || "{}"); } catch (e) { raw = {}; }
+  state.done[u.id] = raw;
+});
+
+/* ------------------------------------------------------------------
+   Pomožne funkcije
+------------------------------------------------------------------ */
+const COUNTED = ITEMS.filter(i => i.tip === "OBV" || i.tip === "POS");
+
+function dateOf(item) { const [y, m, d] = item.d.split("-").map(Number); return new Date(y, m - 1, d); }
+function dow(item)    { return DNEVI[dateOf(item).getDay()]; }
+function dayLabel(item) { const dt = dateOf(item); return dt.getDate() + ". " + MESECI[dt.getMonth()]; }
+function monthLabel(item) { const dt = dateOf(item); return MESECI[dt.getMonth()] + " " + dt.getFullYear(); }
+function isoToday() { const n = new Date(); return n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0"); }
+function num(n) { return Number(n).toFixed(1).replace(".", ","); }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function isOnline(item) { return /daljavo/i.test(item.kraj || ""); }
+
+/** Razpon termina v urah – za opozorilo, kadar se ne ujema s številom ur iz urnika. */
+function spanHours(item) {
+  if (!item.od || !item.do) return null;
+  const [h1, m1] = item.od.split(":").map(Number);
+  const [h2, m2] = item.do.split(":").map(Number);
+  return ((h2 * 60 + m2) - (h1 * 60 + m1)) / 60;
+}
+function hasSpanWarning(item) {
+  const s = spanHours(item);
+  return s !== null && typeof item.ur === "number" && Math.abs(s - item.ur) > 0.01;
+}
+
+/* ------------------------------------------------------------------
+   Shranjevanje
+------------------------------------------------------------------ */
+function persist(userId) {
+  const u = USERS.find(x => x.id === userId);
+  try { localStorage.setItem(u.key, JSON.stringify(state.done[userId])); } catch (e) { console.warn("Shranjevanje ni uspelo:", e); }
+}
+
+async function pushRemote(userId, itemId, value) {
+  if (!sb) return;
+  try {
+    await sb.from("sd1_attendance_users").upsert(
+      { user_id: userId, item_id: itemId, is_completed: value, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,item_id" }
+    );
+  } catch (e) { console.error("Napaka pri shranjevanju v Supabase:", e); }
+}
+
+async function pullRemote() {
+  if (!sb) return;
+  try {
+    const { data } = await sb.from("sd1_attendance_users").select("*");
+    if (!data) return;
+    data.forEach(r => { if (state.done[r.user_id]) state.done[r.user_id][r.item_id] = !!r.is_completed; });
+    USERS.forEach(u => persist(u.id));
+  } catch (e) { console.warn("Uporabljam lokalno shranjevanje:", e); }
+}
+
+/* ------------------------------------------------------------------
+   Ukazi
+------------------------------------------------------------------ */
+function setMark(id, value, skipConfirm) {
+  const done = state.done[state.user];
+  const isDone = !!done[id];
+  if (isDone === value) return;
+
+  // Varovalka samo pri brisanju že vpisane prisotnosti.
+  if (!value && !skipConfirm) {
+    const who = USERS.find(u => u.id === state.user).name;
+    if (!confirm("Kandidat: " + who + "\n\nAli res želite odstraniti oznako prisotnosti za to predavanje?")) return;
+  }
+
+  if (value) done[id] = true; else delete done[id];
+  persist(state.user);
+  pushRemote(state.user, id, value);
+  render();
+}
+
+function toggleDay(iso) {
+  const inDay = COUNTED.filter(i => i.d === iso);
+  if (!inDay.length) return;
+  const done = state.done[state.user];
+  const allDone = inDay.every(i => done[i.id]);
+  const who = USERS.find(u => u.id === state.user).name;
+  const label = allDone ? "odstraniti oznake prisotnosti za ta dan" : "označiti vsa predavanja tega dne kot opravljena";
+  if (!confirm("Kandidat: " + who + "\n\nAli res želite " + label + "? (" + inDay.length + " predavanj)")) return;
+  inDay.forEach(i => { if (allDone) delete done[i.id]; else done[i.id] = true; });
+  persist(state.user);
+  inDay.forEach(i => pushRemote(state.user, i.id, !allDone));
+  render();
+}
+
+/* ------------------------------------------------------------------
+   Filtri
+------------------------------------------------------------------ */
+const FILTERS = [
+  { id: "all",     label: "Vse",              test: () => true },
+  { id: "OBV",     label: "Obvezne",          test: i => i.tip === "OBV" },
+  { id: "POS",     label: "Posebne",          test: i => i.tip === "POS" },
+  { id: "todo",    label: "Neopravljeno",     test: i => (i.tip === "OBV" || i.tip === "POS") && !state.done[state.user][i.id] },
+  { id: "done",    label: "Opravljeno",       test: i => !!state.done[state.user][i.id] },
+  { id: "daljava", label: "Na daljavo",       test: i => isOnline(i) },
+  { id: "zivo",    label: "V živo",           test: i => (i.tip === "OBV" || i.tip === "POS" || i.tip === "IZPIT") && !isOnline(i) }
+];
+
+function matchesQuery(i) {
+  if (!state.q) return true;
+  const hay = (i.tema + " " + (i.pred || "") + " " + (i.kraj || "")).toLowerCase();
+  return hay.includes(state.q);
+}
+
+function visibleItems() {
+  const f = FILTERS.find(x => x.id === state.filter) || FILTERS[0];
+  return ITEMS.filter(i => f.test(i) && matchesQuery(i));
+}
+
+/* ------------------------------------------------------------------
+   Izris
+------------------------------------------------------------------ */
+function renderWho() {
+  document.getElementById("who").innerHTML = USERS.map(u => `
+    <button class="who-tab" role="tab" aria-selected="${u.id === state.user}" data-user="${u.id}">
+      <span class="who-dot">${u.initials}</span>${esc(u.name)}
+    </button>`).join("");
+}
+
+function renderFilters() {
+  document.getElementById("filters").innerHTML = FILTERS.map(f => {
+    const n = ITEMS.filter(i => f.test(i) && matchesQuery(i)).length;
+    return `<button class="fbtn" data-filter="${f.id}" aria-pressed="${f.id === state.filter}">${f.label}<span class="n">${n}</span></button>`;
+  }).join("");
+}
+
+function renderKpis() {
+  const done = state.done[state.user];
+  const name = USERS.find(u => u.id === state.user).name;
+  let obv = 0, pos = 0, cnt = 0;
+  COUNTED.forEach(i => {
+    if (!done[i.id]) return;
+    cnt++;
+    if (i.tip === "OBV") obv += i.ur; else pos += i.ur;
+  });
+  const tot = obv + pos;
+  const totGoal = GOALS.OBV + GOALS.POS;
+
+  const rows = [
+    { p: "obv", val: obv, goal: GOALS.OBV },
+    { p: "pos", val: pos, goal: GOALS.POS },
+    { p: "tot", val: tot, goal: totGoal }
   ];
+  rows.forEach(r => {
+    const pct = (r.val / r.goal) * 100;
+    const need = r.goal * PRAG;
+    document.getElementById(r.p + "-pct").textContent = pct.toFixed(1).replace(".", ",") + " %";
+    document.getElementById(r.p + "-val").innerHTML = num(r.val) + ' <small>/ ' + r.goal + " h</small>";
+    document.getElementById(r.p + "-bar").style.width = Math.min(100, pct) + "%";
+  });
 
-  // Supabase podatki (po želji):
-  const SUPABASE_URL = '';
-  const SUPABASE_KEY = '';
-  let supabaseClient = null;
-  if (SUPABASE_URL && SUPABASE_KEY) {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const okObv = obv >= GOALS.OBV * PRAG;
+  const okPos = pos >= GOALS.POS * PRAG;
+  setPill("obv-pill", okObv, okObv ? "Prag 80 % dosežen" : "Do praga še " + num(GOALS.OBV * PRAG - obv) + " h");
+  setPill("pos-pill", okPos, okPos ? "Prag 80 % dosežen" : "Do praga še " + num(GOALS.POS * PRAG - pos) + " h");
+  setPill("tot-pill", okObv && okPos, okObv && okPos ? "Pristop k izpitu je možen" : "Pogoja za izpit še nista izpolnjena");
+
+  document.getElementById("tot-name").textContent = "Skupaj — " + name;
+  document.getElementById("tot-note").textContent = "Opravljenih " + cnt + " od " + COUNTED.length + " predavanj";
+}
+
+function setPill(id, ok, text) {
+  const el = document.getElementById(id);
+  el.className = "pill " + (ok ? "pill-ok" : "pill-wait");
+  el.textContent = (ok ? "✓ " : "") + text;
+}
+
+function renderNextUp() {
+  const today = isoToday();
+  const next = COUNTED.find(i => i.d >= today);
+  const box = document.getElementById("nextup");
+  if (!next) { box.hidden = true; return; }
+  box.hidden = false;
+  document.getElementById("nextup-txt").innerHTML =
+    "<b>" + esc(dow(next)) + ", " + esc(dayLabel(next)) + "</b> · " + esc(next.od) + "–" + esc(next.do) +
+    " · " + esc(next.tema) + " <span style='color:var(--muted)'>(" + esc(next.kraj) + ")</span>";
+}
+
+function renderTimeline() {
+  const host = document.getElementById("timeline");
+  const items = visibleItems();
+
+  if (!items.length) {
+    host.innerHTML = '<div class="empty">Za izbrani filter ni zadetkov.</div>';
+    return;
   }
 
-  let userStates = {
-    matej: JSON.parse(localStorage.getItem(users.matej.storageKey) || '{}'),
-    mitja: JSON.parse(localStorage.getItem(users.mitja.storageKey) || '{}'),
-    davor: JSON.parse(localStorage.getItem(users.davor.storageKey) || '{}')
-  };
+  const done = state.done[state.user];
+  const today = isoToday();
+  let html = "";
+  let lastMonth = "";
+  let lastDay = "";
 
-  let currentFilter = 'all';
-
-  async function init() {
-    if (supabaseClient) {
-      try {
-        const { data } = await supabaseClient.from('sd1_attendance_users').select('*');
-        if (data) {
-          data.forEach(row => {
-            if (userStates[row.user_id]) {
-              userStates[row.user_id][row.item_id] = row.is_completed;
-            }
-          });
-          saveAllLocal();
-        }
-      } catch (err) {
-        console.warn('Uporabljam lokalno shranjevanje:', err);
-      }
+  items.forEach((i, idx) => {
+    const m = monthLabel(i);
+    if (m !== lastMonth) {
+      if (lastDay) { html += "</div>"; lastDay = ""; }
+      html += '<div class="month">' + esc(m) + "</div>";
+      lastMonth = m;
     }
-    render();
-  }
-
-  function saveAllLocal() {
-    localStorage.setItem(users.matej.storageKey, JSON.stringify(userStates.matej));
-    localStorage.setItem(users.mitja.storageKey, JSON.stringify(userStates.mitja));
-    localStorage.setItem(users.davor.storageKey, JSON.stringify(userStates.davor));
-  }
-
-  function switchUser(u) {
-    currentUser = u;
-    document.querySelectorAll('.user-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(`tab-${u}`).classList.add('active');
-    render();
-  }
-
-  async function toggle(id, val) {
-    const userName = users[currentUser].name;
-    const dejanje = val ? "označiti kot OPRAVLJENO" : "ODSTRANITI oznako prisotnosti";
-    
-    // VAROVALKA: Vprašalnik pred spremembo
-    const potrdi = confirm(`Za kandidata: ${userName}
-Ali ste prepričani, da želite to predavanje ${dejanje}?`);
-    if (!potrdi) {
-      render();
-      return;
+    if (i.d !== lastDay) {
+      if (lastDay) html += "</div>";
+      html += dayHeader(i, items, today);
+      lastDay = i.d;
     }
+    html += sessionRow(i, !!done[i.id]);
+    if (idx === items.length - 1) html += "</div>";
+  });
 
-    userStates[currentUser][id] = val;
-    localStorage.setItem(users[currentUser].storageKey, JSON.stringify(userStates[currentUser]));
-    render();
+  host.innerHTML = html;
+}
 
-    if (supabaseClient) {
-      try {
-        await supabaseClient.from('sd1_attendance_users').upsert({
-          user_id: currentUser,
-          item_id: id,
-          is_completed: val,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id,item_id' });
-      } catch (err) {
-        console.error('Napaka pri shranjevanju v Supabase:', err);
-      }
-    }
+function dayHeader(item, items, today) {
+  const sameDay = items.filter(x => x.d === item.d);
+  const counted = sameDay.filter(x => x.tip === "OBV" || x.tip === "POS");
+  const hours = sameDay.reduce((s, x) => s + (x.tip === "INFO" ? 0 : (x.ur || 0)), 0);
+  const isToday = item.d === today;
+
+  let sum = "";
+  if (counted.length) {
+    sum = counted.length + (counted.length === 1 ? " predavanje" : counted.length === 2 ? " predavanji" : counted.length < 5 ? " predavanja" : " predavanj") + " · " + num(hours) + " h";
+  } else if (sameDay.some(x => x.tip === "IZPIT")) {
+    sum = "zaključni izpit";
+  } else {
+    sum = "ne šteje v ure";
   }
 
-  function render() {
-    const currentState = userStates[currentUser];
-    const currentName = users[currentUser].name;
-    document.getElementById('tot-title').innerText = `Skupno usposabljanje (${currentName})`;
+  // Gumb za cel dan skrijemo, kadar je pogled filtriran – takrat prikazane
+  // vrstice niso nujno vse vrstice tega dne.
+  const filtered = state.filter !== "all" || !!state.q;
+  const btn = (counted.length && !filtered)
+    ? '<button class="day-all" data-day="' + item.d + '">Označi cel dan</button>'
+    : "";
 
-    let obvH = 0, posH = 0;
-    itemsData.forEach(item => {
-      if (currentState[item.id]) {
-        if (item.type === 'OBV') obvH += item.ur;
-        if (item.type === 'POS') posH += item.ur;
-      }
-    });
+  return '<section class="day' + (isToday ? " is-today" : "") + '">' +
+    '<div class="day-head">' +
+      '<div class="day-date"><span class="day-dow">' + esc(dow(item)) + "</span>" +
+      '<span class="day-num">' + esc(dayLabel(item)) + "</span></div>" +
+      (isToday ? '<span class="today-tag">danes</span>' : "") +
+      '<span class="day-spacer"></span>' +
+      '<span class="day-sum">' + sum + "</span>" + btn +
+    "</div>";
+}
 
-    const totH = obvH + posH;
-    const pObv = Math.min(100, (obvH / 22.0) * 100);
-    const pPos = Math.min(100, (posH / 107.0) * 100);
-    const pTot = Math.min(100, (totH / 129.0) * 100);
+function sessionRow(i, isDone) {
+  const cls = i.tip === "OBV" ? "t-obv" : i.tip === "POS" ? "t-pos" : i.tip === "IZPIT" ? "t-exam" : "t-info";
+  const countable = i.tip === "OBV" || i.tip === "POS";
 
-    // Update Obvezne
-    document.getElementById('kpi-obv-pct').innerText = `${pObv.toFixed(1)}%`;
-    document.getElementById('kpi-obv').innerText = `${obvH.toFixed(1)} / 22.0 h`;
-    document.getElementById('prog-obv').style.width = pObv + '%';
-    const bObv = document.getElementById('badge-obv');
-    bObv.innerText = obvH >= 17.6 ? `POGOJ 80% IZPOLNJEN (${pObv.toFixed(1)}%)` : `Manjka še ${(17.6 - obvH).toFixed(1)} h do 80%`;
-    bObv.className = `badge ${obvH >= 17.6 ? 'badge-ok' : 'badge-pending'}`;
+  const box = countable
+    ? '<input type="checkbox" ' + (isDone ? "checked" : "") + ' data-id="' + i.id + '" aria-label="Prisotnost">'
+    : '<span class="noc" aria-hidden="true">•</span>';
 
-    // Update Posebne
-    document.getElementById('kpi-pos-pct').innerText = `${pPos.toFixed(1)}%`;
-    document.getElementById('kpi-pos').innerText = `${posH.toFixed(1)} / 107.0 h`;
-    document.getElementById('prog-pos').style.width = pPos + '%';
-    const bPos = document.getElementById('badge-pos');
-    bPos.innerText = posH >= 85.6 ? `POGOJ 80% IZPOLNJEN (${pPos.toFixed(1)}%)` : `Manjka še ${(85.6 - posH).toFixed(1)} h do 80%`;
-    bPos.className = `badge ${posH >= 85.6 ? 'badge-ok' : 'badge-pending'}`;
+  const time = i.od
+    ? esc(i.od) + '<span class="dash"> – </span>' + esc(i.do)
+    : '<span style="color:var(--muted)">' + esc(i.kraj || "") + "</span>";
 
-    // Update Skupaj
-    document.getElementById('kpi-tot-pct').innerText = `${pTot.toFixed(1)}%`;
-    document.getElementById('kpi-tot').innerText = `${totH.toFixed(1)} / 129.0 h`;
-    document.getElementById('prog-tot').style.width = pTot + '%';
-    const bTot = document.getElementById('badge-tot');
-    bTot.innerText = (obvH >= 17.6 && posH >= 85.6) ? 'PRISTOP K IZPITU ODOBREN!' : 'Pogoji še niso izpolnjeni';
-    bTot.className = `badge ${(obvH >= 17.6 && posH >= 85.6) ? 'badge-ok' : 'badge-pending'}`;
+  const tag = i.tip === "OBV" ? '<span class="tag tag-obv">obvezna</span>'
+            : i.tip === "POS" ? '<span class="tag tag-pos">posebna</span>'
+            : i.tip === "IZPIT" ? '<span class="tag tag-exam">izpit</span>'
+            : '<span class="tag tag-info">ne šteje</span>';
 
-    // Render list
-    const listEl = document.getElementById('schedule-list');
-    listEl.innerHTML = '';
+  const loc = i.od
+    ? (isOnline(i)
+        ? '<span class="meta-i">💻 na daljavo (Zoom)</span>'
+        : '<span class="meta-i loc-live">📍 ' + esc(i.kraj) + "</span>")
+    : "";
 
-    const filtered = itemsData.filter(item => {
-      if (currentFilter === 'all') return true;
-      if (currentFilter === 'OBV') return item.type === 'OBV';
-      if (currentFilter === 'POS') return item.type === 'POS';
-      if (currentFilter === 'daljava') return item.prostor.includes('daljavo');
-      if (currentFilter === 'fizicno') return !item.prostor.includes('daljavo');
-      return true;
-    });
+  const pred = i.pred ? '<span class="meta-i">👤 ' + esc(i.pred) + "</span>" : "";
 
-    filtered.forEach(item => {
-      const isDone = !!currentState[item.id];
-      const div = document.createElement('div');
-      div.className = `row-item ${item.type === 'OBV' ? 'item-obv' : (item.type === 'POS' ? 'item-pos' : 'item-izpit')} ${isDone ? 'completed' : ''}`;
-      div.onclick = (e) => {
-        if (e.target.tagName !== 'INPUT') toggle(item.id, !isDone);
-      };
+  const warn = hasSpanWarning(i)
+    ? '<span class="warnflag" title="Termin traja ' + num(spanHours(i)) + ' h, urnik pa navaja ' + num(i.ur) + ' h. Šteje se vrednost iz urnika.">⚠ ure ≠ termin</span>'
+    : "";
 
-      const typeTag = item.type === 'OBV' 
-        ? '<span class="tag tag-obv">Obvezna</span>' 
-        : (item.type === 'POS' ? '<span class="tag tag-pos">Posebna</span>' : '<span class="tag tag-izpit">IZPIT</span>');
-      
-      const locTag = item.prostor.includes('daljavo')
-        ? '<span class="tag-loc">💻 Na daljavo (Zoom)</span>'
-        : `<span class="tag-loc" style="background:#e0e7ff; color:#3730a3;">📍 ${item.prostor}</span>`;
+  const noteChip = i.opomba ? '<span class="warnflag">⚠ preveri datum</span>' : "";
+  const noteBox = i.opomba ? '<div class="ses-note"><strong>Opomba:</strong> ' + esc(i.opomba) + "</div>" : "";
 
-      div.innerHTML = `
-        <div class="item-left">
-          <input type="checkbox" class="cb" ${isDone ? 'checked' : ''} onchange="toggle(${item.id}, this.checked)">
-          <div>
-            <div style="display:flex; gap:6px; align-items:center; margin-bottom:3px; flex-wrap:wrap;">
-              <strong>${item.dan.toUpperCase()}, ${item.datum} (${item.ura})</strong>
-              ${typeTag}
-              ${locTag}
-            </div>
-            <div style="font-size:0.96rem; font-weight:600;">${item.tema}</div>
-            <div style="font-size:0.82rem; color:var(--gray-600);">Predavatelj: ${item.pred}</div>
-          </div>
-        </div>
-        <div class="hours">${item.ur.toFixed(1)} h</div>
-      `;
-      listEl.appendChild(div);
-    });
+  const hours = (i.tip === "INFO")
+    ? '<div class="ses-h"><b>—</b></div>'
+    : '<div class="ses-h"><b>' + num(i.ur) + "</b><span>ur</span></div>";
+
+  return '<div class="ses ' + cls + (isDone ? " done" : "") + '"' + (countable ? ' data-row="' + i.id + '"' : "") + ">" +
+      box +
+      '<div class="ses-time">' + time + "</div>" +
+      '<div class="ses-body">' +
+        '<div class="ses-title">' + esc(i.tema) + "</div>" +
+        '<div class="ses-meta">' + tag + pred + loc + warn + noteChip + "</div>" +
+      "</div>" +
+      hours + noteBox +
+    "</div>";
+}
+
+function renderMeta() {
+  const dates = COUNTED.map(i => i.d).sort();
+  const first = COUNTED.find(i => i.d === dates[0]);
+  const last = COUNTED.find(i => i.d === dates[dates.length - 1]);
+  document.getElementById("meta-range").textContent =
+    dayLabel(first) + " – " + dayLabel(last) + " " + dateOf(last).getFullYear();
+  document.getElementById("meta-count").textContent = COUNTED.length + " predavanj + izpit";
+}
+
+function render() {
+  renderWho();
+  renderFilters();
+  renderKpis();
+  renderNextUp();
+  renderTimeline();
+}
+
+/* ------------------------------------------------------------------
+   Dogodki
+------------------------------------------------------------------ */
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".who-tab");
+  if (tab) { state.user = tab.dataset.user; render(); return; }
+
+  const fb = e.target.closest(".fbtn");
+  if (fb) { state.filter = fb.dataset.filter; render(); return; }
+
+  const dayBtn = e.target.closest(".day-all");
+  if (dayBtn) { toggleDay(dayBtn.dataset.day); return; }
+
+  if (e.target.matches('.ses input[type="checkbox"]')) return; // obdela change
+
+  const row = e.target.closest(".ses[data-row]");
+  if (row) {
+    const id = Number(row.dataset.row);
+    setMark(id, !state.done[state.user][id]);
   }
+});
 
-  function setF(f, btn) {
-    currentFilter = f;
-    document.querySelectorAll('.btn-f').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
+document.addEventListener("change", e => {
+  if (e.target.matches('.ses input[type="checkbox"]')) {
+    setMark(Number(e.target.dataset.id), e.target.checked);
   }
+});
 
-  init();
+const qEl = document.getElementById("q");
+const qClear = document.getElementById("q-clear");
+qEl.addEventListener("input", () => {
+  state.q = qEl.value.trim().toLowerCase();
+  qClear.hidden = !state.q;
+  renderFilters();
+  renderTimeline();
+});
+qClear.addEventListener("click", () => {
+  qEl.value = ""; state.q = ""; qClear.hidden = true;
+  renderFilters(); renderTimeline(); qEl.focus();
+});
+
+/* ------------------------------------------------------------------
+   Zagon
+------------------------------------------------------------------ */
+(async function init() {
+  renderMeta();
+  render();
+  await pullRemote();
+  render();
+})();
 </script>
 </body>
 </html>
