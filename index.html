@@ -348,6 +348,7 @@
       <li><span class="sw" style="background:var(--exam)"></span><span><strong>Izpit</strong> — se ne šteje v ure usposabljanja.</span></li>
       <li><span class="sw" style="background:var(--line-2)"></span><span><strong>Klinike in rezervni termini</strong> — informativno, ne štejejo v ure usposabljanja.</span></li>
       <li><span class="sw" style="background:var(--warn)"></span><span>Vrstice z oznako <em>ure ≠ termin</em> so tiste, kjer se v uradnem urniku število ur ne ujema s časovnim razponom. Šteje se vrednost iz urnika; priporočamo preveritev pri organizatorju.</span></li>
+      <li><span class="sw" style="background:var(--warn)"></span><span>Oznaka <em>prostor ni določen</em> pomeni, da je v urniku prostor označen rdeče in naveden samo kot »dvorana« (19. 9. popoldne in 10. 10.).</span></li>
     </ul>
   </div>
 
@@ -367,7 +368,7 @@ const USERS = [
 
 /* ------------------------------------------------------------------
    Urnik – 2. skupina, prepisan iz uradnega urnika
-   Urnik_SD1KO_ARKA_2026 (strani 4–6).
+   Urnik_SD1KO_ARKA_2026 (strani 4–6), različica z dne 10. 9. 2026.
 
    tip:  OBV  = obvezne vsebine (v urniku obarvane oranžno)
          POS  = posebne vsebine (v urniku obarvane modro)
@@ -383,40 +384,40 @@ const ITEMS = [
   // --- avgust ---
   { id: 210, tip: "POS", d: "2026-08-27", od: "17:00", do: "18:00", ur: 1,   tema: "Predstavitev delovanja ZKTS in postopki pridobitve trenerskega kartona", pred: "Dejan Gašparin", kraj: "na daljavo" },
   { id: 211, tip: "POS", d: "2026-08-27", od: "18:00", do: "21:00", ur: 3,   tema: "Osnove telesne priprave – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
-  { id: 201, tip: "POS", d: "2026-08-28", od: "17:00", do: "19:00", ur: 2,   tema: "Poslovanje v športu", pred: "Damir Radenović", kraj: "na daljavo" },
   { id: 901, tip: "INFO", d: "2026-08-29", tema: "Klinika za trenerje ČL in U20", kraj: "klinika" },
   { id: 902, tip: "INFO", d: "2026-08-30", tema: "Klinika za trenerje ČL in U20", kraj: "klinika" },
 
   // --- september ---
-  { id: 202, tip: "POS", d: "2026-09-03", od: "17:00", do: "18:00", ur: 1,   tema: "Vodenje kariere", pred: "PVD", kraj: "na daljavo" },
-  { id: 203, tip: "POS", d: "2026-09-03", od: "18:00", do: "20:00", ur: 2,   tema: "Komunikacijske veščine", pred: "PVD", kraj: "na daljavo" },
-  { id: 212, tip: "POS", d: "2026-09-04", od: "17:00", do: "19:00", ur: 2,   tema: "Najpogostejše poškodbe v košarki in prva pomoč", pred: "Tadej Jug", kraj: "na daljavo" },
-  { id: 204, tip: "OBV", d: "2026-09-04", od: "19:00", do: "21:00", ur: 2,   tema: "Odgovornost in zakonodaja v športu", pred: "Janez Vodičar", kraj: "na daljavo" },
+  { id: 202, tip: "POS", d: "2026-09-03", od: "17:00", do: "18:00", ur: 1,   tema: "Vodenje kariere", pred: "Blaž Zagorc", kraj: "na daljavo" },
+  { id: 203, tip: "POS", d: "2026-09-03", od: "18:00", do: "20:00", ur: 2,   tema: "Komunikacijske veščine", pred: "Blaž Zagorc", kraj: "na daljavo" },
+  { id: 213, tip: "POS", d: "2026-09-04", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
   { id: 903, tip: "INFO", d: "2026-09-05", tema: "Klinika za trenerje U18 in U16", kraj: "klinika" },
   { id: 904, tip: "INFO", d: "2026-09-06", tema: "Klinika za trenerje U18 in U16", kraj: "klinika" },
-  { id: 213, tip: "POS", d: "2026-09-10", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
-  { id: 214, tip: "POS", d: "2026-09-11", od: "18:00", do: "20:00", ur: 2,   tema: "Košarka 3 na 3", pred: "Matic Vidic", kraj: "na daljavo" },
+  { id: 204, tip: "OBV", d: "2026-09-10", od: "17:00", do: "19:00", ur: 2,   tema: "Odgovornost in zakonodaja v športu", pred: "Janez Vodičar", kraj: "na daljavo" },
+  { id: 217, tip: "POS", d: "2026-09-11", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
   { id: 905, tip: "INFO", d: "2026-09-12", tema: "Klinika za trenerje U12", kraj: "klinika" },
   { id: 906, tip: "INFO", d: "2026-09-13", tema: "Klinika za trenerje U14", kraj: "klinika" },
+  { id: 214, tip: "POS", d: "2026-09-15", od: "19:30", do: "21:30", ur: 2,   tema: "Košarka 3 na 3", pred: "Matic Vidic", kraj: "na daljavo" },
   { id: 215, tip: "POS", d: "2026-09-17", od: "17:00", do: "19:00", ur: 2,   tema: "Delo z osebami s posebnimi potrebami", pred: "Žiga Kobašević", kraj: "na daljavo" },
   { id: 216, tip: "POS", d: "2026-09-17", od: "19:00", do: "20:30", ur: 1.5, tema: "Košarka na vozičkih", pred: "Žiga Kobašević", kraj: "na daljavo" },
-  { id: 217, tip: "POS", d: "2026-09-18", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
+  { id: 212, tip: "POS", d: "2026-09-18", od: "17:00", do: "19:00", ur: 2,   tema: "Najpogostejše poškodbe v košarki in prva pomoč", pred: "Tadej Jug", kraj: "na daljavo" },
   { id: 218, tip: "POS", d: "2026-09-19", od: "09:00", do: "13:00", ur: 4,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica A" },
-  { id: 219, tip: "POS", d: "2026-09-19", od: "13:00", do: "17:00", ur: 4,   tema: "Košarkarska pravila in sojenje – praksa", pred: "Matej Špendl", kraj: "dvorana Krn" },
+  { id: 219, tip: "POS", d: "2026-09-19", od: "13:00", do: "17:00", ur: 4,   tema: "Košarkarska pravila in sojenje – praksa", pred: "Matej Špendl", kraj: "dvorana", tbdKraj: true },
   { id: 220, tip: "OBV", d: "2026-09-20", od: "09:00", do: "14:00", ur: 5,   tema: "Osnove gibanja človeka", pred: "Jana Videtič", kraj: "dvorana Grintovec" },
   { id: 221, tip: "POS", d: "2026-09-24", od: "17:00", do: "20:00", ur: 3,   tema: "Psihološka priprava ekip", pred: "PVD", kraj: "na daljavo" },
   { id: 222, tip: "POS", d: "2026-09-25", od: "17:00", do: "22:00", ur: 4,   tema: "Osnove vodenja mlajših ekip", pred: "Anže Zdolšek", kraj: "na daljavo" },
-  { id: 223, tip: "POS", d: "2026-09-26", od: "09:00", do: "12:00", ur: 3,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica B" },
+  { id: 223, tip: "POS", d: "2026-09-26", od: "09:00", do: "12:00", ur: 3,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica A" },
   { id: 224, tip: "POS", d: "2026-09-26", od: "12:00", do: "16:30", ur: 4.5, tema: "Košarkarska pravila in sojenje – praksa", pred: "Matej Špendl", kraj: "dvorana Krn" },
   { id: 225, tip: "POS", d: "2026-09-27", od: "09:00", do: "13:00", ur: 4,   tema: "Osnove telesne priprave – praktični del", pred: "Anže Zdolšek", kraj: "dvorana Grintovec" },
   { id: 205, tip: "OBV", d: "2026-09-27", od: "13:00", do: "18:00", ur: 5,   tema: "Osnove športne vadbe", pred: "Anže Zdolšek", kraj: "predavalnica A" },
+  { id: 201, tip: "POS", d: "2026-09-29", od: "17:00", do: "19:00", ur: 2,   tema: "Poslovanje v športu", pred: "Damir Radenović", kraj: "na daljavo" },
 
   // --- oktober ---
   { id: 226, tip: "POS", d: "2026-10-01", od: "17:00", do: "19:00", ur: 2,   tema: "Metode poučevanja in treniranja v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
   { id: 227, tip: "POS", d: "2026-10-01", od: "19:00", do: "20:00", ur: 1,   tema: "Zgodovina košarke v svetu in Sloveniji", pred: "Frane Erčulj", kraj: "na daljavo" },
-  { id: 228, tip: "POS", d: "2026-10-02", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "dvorana Krn" },
-  { id: 229, tip: "POS", d: "2026-10-03", od: "09:00", do: "12:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "predavalnica C" },
-  { id: 230, tip: "POS", d: "2026-10-03", od: "12:00", do: "15:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "predavalnica C" },
+  { id: 228, tip: "POS", d: "2026-10-02", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "dvorana Škrlatica" },
+  { id: 229, tip: "POS", d: "2026-10-03", od: "09:00", do: "12:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "predavalnica A" },
+  { id: 230, tip: "POS", d: "2026-10-03", od: "12:00", do: "15:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Borut Sila", kraj: "predavalnica A" },
   { id: 231, tip: "POS", d: "2026-10-04", od: "09:00", do: "12:00", ur: 3,   tema: "Osnove košarkarske tehnike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
   { id: 232, tip: "POS", d: "2026-10-04", od: "12:15", do: "16:15", ur: 4,   tema: "Osnove košarkarske tehnike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
   { id: 233, tip: "POS", d: "2026-10-08", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove košarkarske tehnike – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
@@ -424,11 +425,11 @@ const ITEMS = [
   { id: 235, tip: "POS", d: "2026-10-08", od: "21:00", do: "21:30", ur: 0.5, tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
   { id: 206, tip: "POS", d: "2026-10-09", od: "17:00", do: "19:00", ur: 2,   tema: "Zgodovina športa v svetu in Sloveniji", pred: "Tomaž Pavlin", kraj: "na daljavo" },
   { id: 207, tip: "POS", d: "2026-10-09", od: "19:00", do: "21:00", ur: 2,   tema: "Organiziranost športa v svetu in Sloveniji", pred: "Tomaž Pavlin", kraj: "na daljavo" },
-  { id: 236, tip: "POS", d: "2026-10-10", od: "09:00", do: "13:00", ur: 4,   tema: "Osnove košarkarske taktike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
-  { id: 237, tip: "POS", d: "2026-10-10", od: "13:30", do: "16:30", ur: 3,   tema: "Osnove košarkarske taktike – praksa", pred: "Blaž Bergant", kraj: "dvorana Krn" },
+  { id: 236, tip: "POS", d: "2026-10-10", od: "09:00", do: "13:00", ur: 4,   tema: "Osnove košarkarske taktike – praksa", pred: "Blaž Bergant", kraj: "dvorana", tbdKraj: true },
+  { id: 237, tip: "POS", d: "2026-10-10", od: "13:30", do: "16:30", ur: 3,   tema: "Osnove košarkarske taktike – praksa", pred: "Blaž Bergant", kraj: "dvorana", tbdKraj: true },
   { id: 238, tip: "POS", d: "2026-10-11", od: "09:00", do: "13:00", ur: 3,   tema: "Osnove telesne priprave – praktični del", pred: "Anže Zdolšek", kraj: "dvorana Grintovec" },
   { id: 239, tip: "POS", d: "2026-10-11", od: "13:00", do: "16:00", ur: 3,   tema: "Osnove vodenja mlajših ekip", pred: "Anže Zdolšek", kraj: "dvorana Grintovec" },
-  { id: 240, tip: "POS", d: "2026-10-15", od: "20:00", do: "22:00", ur: 2,   tema: "Predstavitev organizacijske dejavnosti KZS", pred: "Gorazd Trontelj", kraj: "na daljavo" },
+  { id: 240, tip: "POS", d: "2026-10-15", od: "17:00", do: "19:00", ur: 2,   tema: "Predstavitev organizacijske dejavnosti KZS", pred: "Gorazd Trontelj", kraj: "na daljavo" },
   { id: 241, tip: "POS", d: "2026-10-16", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove košarkarske taktike – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
   { id: 242, tip: "POS", d: "2026-10-16", od: "20:00", do: "21:30", ur: 1.5, tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
   { id: 907, tip: "INFO", d: "2026-10-17", tema: "Rezervni termin", kraj: "rezerva" },
@@ -441,9 +442,9 @@ const ITEMS = [
   // --- november ---
   { id: 908, tip: "INFO", d: "2026-11-07", tema: "Klinika za trenerje U10", kraj: "klinika" },
   { id: 209, tip: "OBV", d: "2026-11-08", od: "09:00", do: "14:00", ur: 5,   tema: "Psihosocialne osnove športa", pred: "PVD", kraj: "na daljavo" },
-  { id: 247, tip: "IZPIT", d: "2026-11-21", od: "17:00", do: "18:00", ur: 1, tema: "IZPIT – teorija", pred: "Jana Videtič", kraj: "predavalnica B",
-    opomba: "V uradnem urniku je zapisano »petek, 21.11.2025«. Leta 2026 je 21. november sobota – datum izpita je treba potrditi pri organizatorju." },
-  { id: 248, tip: "IZPIT", d: "2026-11-21", od: "18:15", do: "20:15", ur: 2, tema: "IZPIT – praktično", pred: "Blaž Bergant", kraj: "dvorana Krn" }
+  { id: 247, tip: "IZPIT", d: "2026-11-20", od: "17:00", do: "18:00", ur: 1, tema: "IZPIT – teorija", pred: "Jana Videtič", kraj: "predavalnica B",
+    opomba: "V uradnem urniku je pri izpitu zapisano leto 2025 (»petek, 20.11.2025«), vendar dan v tednu ustreza letu 2026 – petek, 20. november 2026." },
+  { id: 248, tip: "IZPIT", d: "2026-11-20", od: "18:15", do: "20:15", ur: 2, tema: "IZPIT – praktično", pred: "Blaž Bergant", kraj: "dvorana Krn" }
 ];
 
 /* ------------------------------------------------------------------
@@ -748,7 +749,12 @@ function sessionRow(i, isDone) {
   const loc = i.od
     ? (isOnline(i)
         ? '<span class="meta-i">💻 na daljavo (Zoom)</span>'
-        : '<span class="meta-i loc-live">📍 ' + esc(i.kraj) + "</span>")
+        : '<span class="meta-i loc-live">📍 ' + esc(i.kraj) + (i.tbdKraj ? " (še ni določena)" : "") + "</span>")
+    : "";
+
+  // V urniku so ti prostori označeni rdeče in navedeni samo kot »dvorana«.
+  const tbd = i.tbdKraj
+    ? '<span class="warnflag" title="V uradnem urniku je prostor označen rdeče in še ni določen.">⚠ prostor ni določen</span>'
     : "";
 
   const pred = i.pred ? '<span class="meta-i">👤 ' + esc(i.pred) + "</span>" : "";
@@ -769,7 +775,7 @@ function sessionRow(i, isDone) {
       '<div class="ses-time">' + time + "</div>" +
       '<div class="ses-body">' +
         '<div class="ses-title">' + esc(i.tema) + "</div>" +
-        '<div class="ses-meta">' + tag + pred + loc + warn + noteChip + "</div>" +
+        '<div class="ses-meta">' + tag + pred + loc + tbd + warn + noteChip + "</div>" +
       "</div>" +
       hours + noteBox +
     "</div>";
