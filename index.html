@@ -228,6 +228,11 @@
 
     .meta-i { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
     .loc-live { color: #3730a3; font-weight: 700; }
+    .moveflag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe;
+      border-radius: 5px; padding: 2px 7px; font-size: .72rem; font-weight: 700;
+    }
     .warnflag {
       display: inline-flex; align-items: center; gap: 4px;
       background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-line);
@@ -348,6 +353,7 @@
       <li><span class="sw" style="background:var(--exam)"></span><span><strong>Izpit</strong> — se ne šteje v ure usposabljanja.</span></li>
       <li><span class="sw" style="background:var(--line-2)"></span><span><strong>Klinike in rezervni termini</strong> — informativno, ne štejejo v ure usposabljanja.</span></li>
       <li><span class="sw" style="background:var(--warn)"></span><span>Vrstice z oznako <em>ure ≠ termin</em> so tiste, kjer se v uradnem urniku število ur ne ujema s časovnim razponom. Šteje se vrednost iz urnika; priporočamo preveritev pri organizatorju.</span></li>
+      <li><span class="sw" style="background:#4f46e5"></span><span>Oznaka <em>prestavljeno</em> pomeni termin, ki je bil spremenjen po objavi uradnega urnika; razlog je zapisan pod predavanjem.</span></li>
       <li><span class="sw" style="background:var(--warn)"></span><span>Oznaka <em>prostor ni določen</em> pomeni, da je v urniku prostor označen rdeče in naveden samo kot »dvorana« (19. 9. popoldne in 10. 10.).</span></li>
     </ul>
   </div>
@@ -368,7 +374,8 @@ const USERS = [
 
 /* ------------------------------------------------------------------
    Urnik – 2. skupina, prepisan iz uradnega urnika
-   Urnik_SD1KO_ARKA_2026 (strani 4–6), različica z dne 10. 9. 2026.
+   Urnik_SD1KO_ARKA_2026 (strani 4–6), različica z dne 10. 9. 2026,
+   z naknadnima premikoma z dne 15. 9. 2026 (polje "premik").
 
    tip:  OBV  = obvezne vsebine (v urniku obarvane oranžno)
          POS  = posebne vsebine (v urniku obarvane modro)
@@ -397,13 +404,13 @@ const ITEMS = [
   { id: 217, tip: "POS", d: "2026-09-11", od: "17:00", do: "20:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "na daljavo" },
   { id: 905, tip: "INFO", d: "2026-09-12", tema: "Klinika za trenerje U12", kraj: "klinika" },
   { id: 906, tip: "INFO", d: "2026-09-13", tema: "Klinika za trenerje U14", kraj: "klinika" },
-  { id: 214, tip: "POS", d: "2026-09-15", od: "19:30", do: "21:30", ur: 2,   tema: "Košarka 3 na 3", pred: "Matic Vidic", kraj: "na daljavo" },
   { id: 215, tip: "POS", d: "2026-09-17", od: "17:00", do: "19:00", ur: 2,   tema: "Delo z osebami s posebnimi potrebami", pred: "Žiga Kobašević", kraj: "na daljavo" },
   { id: 216, tip: "POS", d: "2026-09-17", od: "19:00", do: "20:30", ur: 1.5, tema: "Košarka na vozičkih", pred: "Žiga Kobašević", kraj: "na daljavo" },
   { id: 212, tip: "POS", d: "2026-09-18", od: "17:00", do: "19:00", ur: 2,   tema: "Najpogostejše poškodbe v košarki in prva pomoč", pred: "Tadej Jug", kraj: "na daljavo" },
   { id: 218, tip: "POS", d: "2026-09-19", od: "09:00", do: "13:00", ur: 4,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica A" },
   { id: 219, tip: "POS", d: "2026-09-19", od: "13:00", do: "17:00", ur: 4,   tema: "Košarkarska pravila in sojenje – praksa", pred: "Matej Špendl", kraj: "dvorana", tbdKraj: true },
-  { id: 220, tip: "OBV", d: "2026-09-20", od: "09:00", do: "14:00", ur: 5,   tema: "Osnove gibanja človeka", pred: "Jana Videtič", kraj: "dvorana Grintovec" },
+  { id: 214, tip: "POS", d: "2026-09-22", od: "19:00", do: "21:00", ur: 2,   tema: "Košarka 3 na 3", pred: "Matic Vidic", kraj: "na daljavo",
+    premik: "Prestavljeno s torka, 15. 9. 2026 (19:30–21:30)." },
   { id: 221, tip: "POS", d: "2026-09-24", od: "17:00", do: "20:00", ur: 3,   tema: "Psihološka priprava ekip", pred: "PVD", kraj: "na daljavo" },
   { id: 222, tip: "POS", d: "2026-09-25", od: "17:00", do: "22:00", ur: 4,   tema: "Osnove vodenja mlajših ekip", pred: "Anže Zdolšek", kraj: "na daljavo" },
   { id: 223, tip: "POS", d: "2026-09-26", od: "09:00", do: "12:00", ur: 3,   tema: "Košarkarska pravila in sojenje – teorija", pred: "Matej Špendl", kraj: "predavalnica A" },
@@ -432,7 +439,8 @@ const ITEMS = [
   { id: 240, tip: "POS", d: "2026-10-15", od: "17:00", do: "19:00", ur: 2,   tema: "Predstavitev organizacijske dejavnosti KZS", pred: "Gorazd Trontelj", kraj: "na daljavo" },
   { id: 241, tip: "POS", d: "2026-10-16", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove košarkarske taktike – teorija", pred: "Frane Erčulj", kraj: "na daljavo" },
   { id: 242, tip: "POS", d: "2026-10-16", od: "20:00", do: "21:30", ur: 1.5, tema: "Proces usmerjanja, selekcioniranja in specializacije v košarki", pred: "Frane Erčulj", kraj: "na daljavo" },
-  { id: 907, tip: "INFO", d: "2026-10-17", tema: "Rezervni termin", kraj: "rezerva" },
+  { id: 220, tip: "OBV", d: "2026-10-17", od: "09:00", do: "14:00", ur: 5,   tema: "Osnove gibanja človeka", pred: "Jana Videtič", kraj: "dvorana Grintovec",
+    premik: "Prestavljeno z nedelje, 20. 9. 2026; zasede rezervni termin v soboto, 17. 10. Prostor je treba potrditi." },
   { id: 243, tip: "POS", d: "2026-10-18", od: "09:00", do: "13:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "dvorana Krn" },
   { id: 244, tip: "POS", d: "2026-10-18", od: "13:00", do: "16:00", ur: 3,   tema: "Tehnično taktična priprava do 16 let", pred: "Dejan Čikić", kraj: "dvorana Krn" },
   { id: 208, tip: "POS", d: "2026-10-22", od: "17:00", do: "20:00", ur: 3,   tema: "Osnove uporabe informacijske tehnologije", pred: "Gorazd Trontelj", kraj: "na daljavo" },
@@ -764,7 +772,14 @@ function sessionRow(i, isDone) {
     : "";
 
   const noteChip = i.opomba ? '<span class="warnflag">⚠ preveri datum</span>' : "";
-  const noteBox = i.opomba ? '<div class="ses-note"><strong>Opomba:</strong> ' + esc(i.opomba) + "</div>" : "";
+
+  // Termin, prestavljen po objavi uradnega urnika.
+  const move = i.premik
+    ? '<span class="moveflag" title="' + esc(i.premik) + '">↻ prestavljeno</span>'
+    : "";
+  const noteBox = (i.opomba || i.premik)
+    ? '<div class="ses-note"><strong>' + (i.premik ? "Sprememba:" : "Opomba:") + "</strong> " + esc(i.premik || i.opomba) + "</div>"
+    : "";
 
   const hours = (i.tip === "INFO")
     ? '<div class="ses-h"><b>—</b></div>'
@@ -775,7 +790,7 @@ function sessionRow(i, isDone) {
       '<div class="ses-time">' + time + "</div>" +
       '<div class="ses-body">' +
         '<div class="ses-title">' + esc(i.tema) + "</div>" +
-        '<div class="ses-meta">' + tag + pred + loc + tbd + warn + noteChip + "</div>" +
+        '<div class="ses-meta">' + tag + pred + loc + tbd + warn + move + noteChip + "</div>" +
       "</div>" +
       hours + noteBox +
     "</div>";
